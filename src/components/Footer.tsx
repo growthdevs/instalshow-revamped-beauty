@@ -1,11 +1,21 @@
 import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, Instagram, Linkedin, Youtube, Facebook } from "lucide-react";
+import logoInstalshow from "@/assets/logo-instalshow.svg";
+import expoBg from "@/assets/expo-bg.jpg";
 
 const Footer = () => {
   return (
-    <footer id="contato" className="bg-navy-dark text-white">
+    <footer id="contato" className="text-white relative">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${expoBg})` }}
+      />
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-navy-dark/95" />
+
       {/* Main Footer */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Logo & Description */}
           <motion.div
@@ -15,9 +25,11 @@ const Footer = () => {
             transition={{ duration: 0.6 }}
             className="lg:col-span-1"
           >
-            <h3 className="text-2xl font-heading font-bold mb-4">
-              INSTAL<span className="text-accent">SHOW</span>
-            </h3>
+            <img 
+              src={logoInstalshow} 
+              alt="InstalShow" 
+              className="h-12 w-auto mb-4"
+            />
             <p className="text-white/70 text-sm leading-relaxed mb-6">
               A maior feira de instalações elétricas, hidráulicas, ar condicionado e proteção contra incêndios do Brasil.
             </p>
@@ -118,7 +130,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-white/10">
+      <div className="border-t border-white/10 relative z-10">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
             <p className="text-white/50 text-sm">
