@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
+import logoInstalshow from "@/assets/logo-instalshow.svg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,9 +20,11 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href="#" className="flex items-center">
-            <span className="text-xl md:text-2xl font-heading font-bold text-white tracking-tight">
-              INSTAL<span className="text-accent">SHOW</span>
-            </span>
+            <img 
+              src={logoInstalshow} 
+              alt="InstalShow" 
+              className="h-10 md:h-12 w-auto"
+            />
           </a>
 
           {/* Desktop Navigation */}

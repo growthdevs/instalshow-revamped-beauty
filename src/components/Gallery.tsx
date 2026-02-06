@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import expoBg from "@/assets/expo-bg.jpg";
 
 const images = [
+  "https://instalshow.com.br/assets/images/galeria/IMG_4598.webp",
+  "https://instalshow.com.br/assets/images/galeria/IMG_8723.webp",
+  "https://instalshow.com.br/assets/images/galeria/IMG_3721.webp",
+  "https://instalshow.com.br/assets/images/banner/banner-5.webp",
   "https://instalshow.com.br/assets/images/galeria/IMG_4598.webp",
   "https://instalshow.com.br/assets/images/galeria/IMG_8723.webp",
   "https://instalshow.com.br/assets/images/galeria/IMG_3721.webp",
@@ -11,6 +16,7 @@ const images = [
 
 const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const openLightbox = (index: number) => setSelectedImage(index);
   const closeLightbox = () => setSelectedImage(null);
@@ -24,9 +30,26 @@ const Gallery = () => {
     }
   };
 
+  const scrollCarousel = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const scrollAmount = 320;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <section id="galeria" className="py-20 bg-navy">
-      <div className="container mx-auto px-4">
+    <section id="galeria" className="py-20 relative overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${expoBg})` }}
+      />
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-navy-dark/90" />
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -45,31 +68,54 @@ const Gallery = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {images.map((image, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="group cursor-pointer"
-              onClick={() => openLightbox(index)}
-            >
-              <div className="relative overflow-hidden rounded-xl aspect-square">
-                <img
-                  src={image}
-                  alt={`Galeria ${index + 1}`}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-navy/0 group-hover:bg-navy/40 transition-colors duration-300 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-accent scale-0 group-hover:scale-100 transition-transform duration-300 flex items-center justify-center">
-                    <span className="text-white text-2xl">+</span>
+        {/* Carousel Container */}
+        <div className="relative">
+          {/* Navigation Buttons */}
+          <button
+            onClick={() => scrollCarousel("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-accent/90 hover:bg-accent rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 -ml-4 md:ml-0"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          
+          <button
+            onClick={() => scrollCarousel("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-accent/90 hover:bg-accent rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 -mr-4 md:mr-0"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Carousel */}
+          <div
+            ref={scrollRef}
+            className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-8 py-4"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {images.map((image, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                className="group cursor-pointer flex-shrink-0"
+                onClick={() => openLightbox(index)}
+              >
+                <div className="relative overflow-hidden rounded-xl w-72 h-72 md:w-80 md:h-80">
+                  <img
+                    src={image}
+                    alt={`Galeria ${index + 1}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-navy/0 group-hover:bg-navy/40 transition-colors duration-300 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-accent scale-0 group-hover:scale-100 transition-transform duration-300 flex items-center justify-center">
+                      <span className="text-white text-2xl">+</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
 
