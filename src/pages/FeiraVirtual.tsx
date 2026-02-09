@@ -23,71 +23,36 @@ interface Empresa {
   endereco?: string;
 }
 
+const exampleProdutos = [
+  "Disjuntores e dispositivos de proteção",
+  "Quadros de distribuição elétrica",
+  "Cabos e fios elétricos",
+  "Luminárias e sistemas de iluminação LED",
+  "Tubos e conexões hidráulicas",
+  "Sistemas de ar condicionado split e multi-split",
+  "Detectores de fumaça e alarmes de incêndio",
+  "Painéis elétricos industriais",
+  "Bombas hidráulicas e pressurizadores",
+  "Sistemas de automação predial",
+];
+
 const empresas: Empresa[] = [
-  {
-    id: 1, nome: "Expositor 1", logo: "https://instalshow.com.br/assets/images/expositores/8.webp",
-    produtos: ["Produto A", "Produto B", "Produto C"], telefone: "(11) 1234-5678", email: "contato@expositor1.com.br", site: "https://expositor1.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 2, nome: "Expositor 2", logo: "https://instalshow.com.br/assets/images/expositores/9.webp",
-    produtos: ["Produto A", "Produto B"], telefone: "(11) 1234-5678", email: "contato@expositor2.com.br", site: "https://expositor2.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 3, nome: "Expositor 3", logo: "https://instalshow.com.br/assets/images/expositores/10.webp",
-    produtos: ["Produto A", "Produto B", "Produto C"], telefone: "(11) 1234-5678", email: "contato@expositor3.com.br", site: "https://expositor3.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 4, nome: "Expositor 4", logo: "https://instalshow.com.br/assets/images/expositores/11.webp",
-    produtos: ["Produto A", "Produto B"], telefone: "(11) 1234-5678", email: "contato@expositor4.com.br", site: "https://expositor4.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 5, nome: "Expositor 5", logo: "https://instalshow.com.br/assets/images/expositores/12.webp",
-    produtos: ["Produto A", "Produto B", "Produto C"], telefone: "(11) 1234-5678", email: "contato@expositor5.com.br", site: "https://expositor5.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 6, nome: "Expositor 6", logo: "https://instalshow.com.br/assets/images/expositores/13.webp",
-    produtos: ["Produto A", "Produto B"], telefone: "(11) 1234-5678", email: "contato@expositor6.com.br", site: "https://expositor6.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 7, nome: "Expositor 7", logo: "https://instalshow.com.br/assets/images/expositores/14.webp",
-    produtos: ["Produto A", "Produto B", "Produto C"], telefone: "(11) 1234-5678", email: "contato@expositor7.com.br", site: "https://expositor7.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 8, nome: "Expositor 8", logo: "https://instalshow.com.br/assets/images/expositores/16.webp",
-    produtos: ["Produto A", "Produto B"], telefone: "(11) 1234-5678", email: "contato@expositor8.com.br", site: "https://expositor8.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 9, nome: "Expositor 9", logo: "https://instalshow.com.br/assets/images/expositores/17.webp",
-    produtos: ["Produto A", "Produto B", "Produto C"], telefone: "(11) 1234-5678", email: "contato@expositor9.com.br", site: "https://expositor9.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 10, nome: "Expositor 10", logo: "https://instalshow.com.br/assets/images/expositores/18.webp",
-    produtos: ["Produto A", "Produto B"], telefone: "(11) 1234-5678", email: "contato@expositor10.com.br", site: "https://expositor10.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 11, nome: "Expositor 11", logo: "https://instalshow.com.br/assets/images/expositores/19.webp",
-    produtos: ["Produto A", "Produto B", "Produto C"], telefone: "(11) 1234-5678", email: "contato@expositor11.com.br", site: "https://expositor11.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 12, nome: "Expositor 12", logo: "https://instalshow.com.br/assets/images/expositores/20.webp",
-    produtos: ["Produto A", "Produto B"], telefone: "(11) 1234-5678", email: "contato@expositor12.com.br", site: "https://expositor12.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 13, nome: "Expositor 13", logo: "https://instalshow.com.br/assets/images/expositores/21.webp",
-    produtos: ["Produto A", "Produto B", "Produto C"], telefone: "(11) 1234-5678", email: "contato@expositor13.com.br", site: "https://expositor13.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 14, nome: "Expositor 14", logo: "https://instalshow.com.br/assets/images/expositores/22.webp",
-    produtos: ["Produto A", "Produto B"], telefone: "(11) 1234-5678", email: "contato@expositor14.com.br", site: "https://expositor14.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 15, nome: "Expositor 15", logo: "https://instalshow.com.br/assets/images/expositores/23.webp",
-    produtos: ["Produto A", "Produto B", "Produto C"], telefone: "(11) 1234-5678", email: "contato@expositor15.com.br", site: "https://expositor15.com.br", endereco: "São Paulo, SP",
-  },
-  {
-    id: 16, nome: "Expositor 16", logo: "https://instalshow.com.br/assets/images/expositores/24.webp",
-    produtos: ["Produto A", "Produto B"], telefone: "(11) 1234-5678", email: "contato@expositor16.com.br", site: "https://expositor16.com.br", endereco: "São Paulo, SP",
-  },
+  { id: 1, nome: "Expositor 1", logo: "https://instalshow.com.br/assets/images/expositores/8.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor1.com.br", site: "https://expositor1.com.br", endereco: "São Paulo, SP" },
+  { id: 2, nome: "Expositor 2", logo: "https://instalshow.com.br/assets/images/expositores/9.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor2.com.br", site: "https://expositor2.com.br", endereco: "São Paulo, SP" },
+  { id: 3, nome: "Expositor 3", logo: "https://instalshow.com.br/assets/images/expositores/10.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor3.com.br", site: "https://expositor3.com.br", endereco: "São Paulo, SP" },
+  { id: 4, nome: "Expositor 4", logo: "https://instalshow.com.br/assets/images/expositores/11.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor4.com.br", site: "https://expositor4.com.br", endereco: "São Paulo, SP" },
+  { id: 5, nome: "Expositor 5", logo: "https://instalshow.com.br/assets/images/expositores/12.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor5.com.br", site: "https://expositor5.com.br", endereco: "São Paulo, SP" },
+  { id: 6, nome: "Expositor 6", logo: "https://instalshow.com.br/assets/images/expositores/13.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor6.com.br", site: "https://expositor6.com.br", endereco: "São Paulo, SP" },
+  { id: 7, nome: "Expositor 7", logo: "https://instalshow.com.br/assets/images/expositores/14.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor7.com.br", site: "https://expositor7.com.br", endereco: "São Paulo, SP" },
+  { id: 8, nome: "Expositor 8", logo: "https://instalshow.com.br/assets/images/expositores/16.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor8.com.br", site: "https://expositor8.com.br", endereco: "São Paulo, SP" },
+  { id: 9, nome: "Expositor 9", logo: "https://instalshow.com.br/assets/images/expositores/17.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor9.com.br", site: "https://expositor9.com.br", endereco: "São Paulo, SP" },
+  { id: 10, nome: "Expositor 10", logo: "https://instalshow.com.br/assets/images/expositores/18.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor10.com.br", site: "https://expositor10.com.br", endereco: "São Paulo, SP" },
+  { id: 11, nome: "Expositor 11", logo: "https://instalshow.com.br/assets/images/expositores/19.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor11.com.br", site: "https://expositor11.com.br", endereco: "São Paulo, SP" },
+  { id: 12, nome: "Expositor 12", logo: "https://instalshow.com.br/assets/images/expositores/20.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor12.com.br", site: "https://expositor12.com.br", endereco: "São Paulo, SP" },
+  { id: 13, nome: "Expositor 13", logo: "https://instalshow.com.br/assets/images/expositores/21.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor13.com.br", site: "https://expositor13.com.br", endereco: "São Paulo, SP" },
+  { id: 14, nome: "Expositor 14", logo: "https://instalshow.com.br/assets/images/expositores/22.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor14.com.br", site: "https://expositor14.com.br", endereco: "São Paulo, SP" },
+  { id: 15, nome: "Expositor 15", logo: "https://instalshow.com.br/assets/images/expositores/23.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor15.com.br", site: "https://expositor15.com.br", endereco: "São Paulo, SP" },
+  { id: 16, nome: "Expositor 16", logo: "https://instalshow.com.br/assets/images/expositores/24.webp", produtos: exampleProdutos, telefone: "(11) 1234-5678", email: "contato@expositor16.com.br", site: "https://expositor16.com.br", endereco: "São Paulo, SP" },
 ];
 
 const FeiraVirtual = () => {
@@ -203,7 +168,7 @@ const FeiraVirtual = () => {
           {selected && (
             <div className="flex flex-col gap-6 min-h-0">
               {/* Logo */}
-              <div className="bg-off-white rounded-xl p-8 flex items-center justify-center h-44 shrink-0">
+              <div className="bg-off-white rounded-xl pt-8 px-8 pb-4 flex items-center justify-center h-52 shrink-0">
                 <img
                   src={selected.logo}
                   alt={selected.nome}
