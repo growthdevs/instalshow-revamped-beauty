@@ -1,5 +1,6 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
+import { useRef, useState, useCallback, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const expositores = [
   "https://instalshow.com.br/assets/images/expositores/8.webp",
@@ -20,20 +21,29 @@ const expositores = [
   "https://instalshow.com.br/assets/images/expositores/24.webp",
 ];
 
-const Expositores = () => {
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-  const x1 = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
-  const x2 = useTransform(scrollYProgress, [0, 1], ["-15%", "0%"]);
+const ITEMS_PER_PAGE = { mobile: 4, desktop: 8 };
 
-  const row1 = expositores.slice(0, 8);
-  const row2 = expositores.slice(8, 16);
+const Expositores = () => {
+  const [page, setPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const perPage = isMobile ? ITEMS_PER_PAGE.mobile : ITEMS_PER_PAGE.desktop;
+  const totalPages = Math.ceil(expositores.length / perPage);
+
+  const prev = useCallback(() => setPage((p) => (p === 0 ? totalPages - 1 : p - 1)), [totalPages]);
+  const next = useCallback(() => setPage((p) => (p === totalPages - 1 ? 0 : p + 1)), [totalPages]);
+
+  const currentItems = expositores.slice(page * perPage, page * perPage + perPage);
 
   return (
-    <section ref={sectionRef} id="expositores" className="section-padding bg-off-white overflow-hidden">
+    <section id="expositores" className="section-padding bg-off-white overflow-hidden">
       <div className="container mx-auto px-4 mb-14">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -54,37 +64,62 @@ const Expositores = () => {
         </motion.div>
       </div>
 
-      {/* Scrolling rows */}
-      <div className="space-y-6">
-        <motion.div style={{ x: x1 }} className="flex gap-5">
-          {[...row1, ...row1, ...row1].map((logo, index) => (
-            <div
-              key={`r1-${index}`}
-              className="flex-shrink-0 w-44 h-28 md:w-56 md:h-36 bg-white rounded-2xl shadow-card p-5 flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
-            >
-              <img
-                src={logo}
-                alt={`Expositor ${(index % row1.length) + 1}`}
-                className="max-w-full max-h-full object-contain filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-400"
-              />
-            </div>
-          ))}
-        </motion.div>
+      <div className="container mx-auto px-4 relative">
+        {/* Navigation buttons */}
+        <button
+          onClick={prev}
+          className="absolute -left-2 md:left-0 top-1/2 -translate-y-1/2 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center text-navy hover:bg-accent hover:text-white transition-all duration-300"
+          aria-label="Anterior"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
 
-        <motion.div style={{ x: x2 }} className="flex gap-5">
-          {[...row2, ...row2, ...row2].map((logo, index) => (
-            <div
-              key={`r2-${index}`}
-              className="flex-shrink-0 w-44 h-28 md:w-56 md:h-36 bg-white rounded-2xl shadow-card p-5 flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
-            >
-              <img
-                src={logo}
-                alt={`Expositor ${(index % row2.length) + 9}`}
-                className="max-w-full max-h-full object-contain filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-400"
-              />
-            </div>
+        <button
+          onClick={next}
+          className="absolute -right-2 md:right-0 top-1/2 -translate-y-1/2 z-10 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center text-navy hover:bg-accent hover:text-white transition-all duration-300"
+          aria-label="Próximo"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+
+        {/* Grid of logos */}
+        <div className="mx-8 md:mx-14">
+          <motion.div
+            key={page}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5"
+          >
+            {currentItems.map((logo, index) => (
+              <div
+                key={`expo-${page}-${index}`}
+                className="bg-white rounded-2xl shadow-card p-5 flex items-center justify-center h-28 md:h-36 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+              >
+                <img
+                  src={logo}
+                  alt={`Expositor ${page * perPage + index + 1}`}
+                  className="max-w-full max-h-full object-contain filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-400"
+                />
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Page indicators */}
+        <div className="flex justify-center gap-2 mt-8">
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i)}
+              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                i === page ? "bg-accent w-7" : "bg-border hover:bg-muted-foreground"
+              }`}
+              aria-label={`Página ${i + 1}`}
+            />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
