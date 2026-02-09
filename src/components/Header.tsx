@@ -64,7 +64,7 @@ const Header = () => {
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3">
             <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/10" asChild>
-              <a href="https://wa.me/5511963830660" target="_blank" rel="noopener noreferrer">
+              <a href="/feira-virtual">
                 Feira Virtual
               </a>
             </Button>
@@ -124,7 +124,7 @@ const Header = () => {
               ))}
               <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-white/10">
                 <Button variant="hero-outline" size="sm" className="rounded-full" asChild>
-                  <a href="https://wa.me/5511963830660" target="_blank" rel="noopener noreferrer">
+                  <a href="/feira-virtual" onClick={() => setIsMenuOpen(false)}>
                     Feira Virtual
                   </a>
                 </Button>
