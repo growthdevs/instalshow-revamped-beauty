@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Target, Users, Award, ChevronRight } from "lucide-react";
+import { Target, Users, Award, ArrowRight, Zap, Handshake, Presentation } from "lucide-react";
 import { Button } from "./ui/button";
+
+const features = [
+  { icon: Zap, label: "Networking Qualificado" },
+  { icon: Handshake, label: "Negócios B2B" },
+  { icon: Presentation, label: "Palestras Técnicas" },
+];
 
 const tabs = [
   {
@@ -41,43 +47,71 @@ const About = () => {
   const currentTab = tabs.find((tab) => tab.id === activeTab)!;
 
   return (
-    <section id="sobre" className="py-20 bg-off-white">
-      <div className="container mx-auto px-4">
+    <section id="sobre" className="section-padding bg-background relative overflow-hidden">
+      {/* Subtle mesh background */}
+      <div className="absolute inset-0 bg-mesh opacity-40" />
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.7 }}
+          className="text-center mb-14"
         >
-          <span className="text-accent font-semibold uppercase tracking-wider text-sm">
+          <span className="text-accent font-semibold uppercase tracking-widest text-xs">
             Sobre o Evento
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-navy mt-2">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-heading font-black text-navy mt-3">
             Conheça a InstalShow
           </h2>
         </motion.div>
 
-        <div className="max-w-5xl mx-auto">
+        {/* Feature pills */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex flex-wrap justify-center gap-4 mb-14"
+        >
+          {features.map((f, i) => (
+            <motion.div
+              key={f.label}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 + i * 0.1 }}
+              className="flex items-center gap-2.5 bg-secondary rounded-full px-5 py-3 shadow-card"
+            >
+              <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                <f.icon className="w-4 h-4 text-accent" />
+              </div>
+              <span className="text-sm font-semibold text-navy">{f.label}</span>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <div className="max-w-4xl mx-auto">
           {/* Tabs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-wrap justify-center gap-3 mb-10"
+            className="flex flex-wrap justify-center gap-2 mb-8"
           >
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 ${
                   activeTab === tab.id
-                    ? "bg-accent text-white shadow-accent"
-                    : "bg-white text-navy hover:bg-navy hover:text-white border border-navy/10"
+                    ? "bg-navy text-white shadow-lg"
+                    : "bg-white text-muted-foreground hover:bg-secondary hover:text-navy shadow-card"
                 }`}
               >
-                <tab.icon className="w-5 h-5" />
+                <tab.icon className="w-4 h-4" />
                 {tab.label}
               </button>
             ))}
@@ -87,28 +121,30 @@ const About = () => {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-              className="bg-white rounded-2xl shadow-lg p-8 md:p-12"
+              initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -16, filter: "blur(8px)" }}
+              transition={{ duration: 0.35 }}
+              className="bg-white rounded-2xl shadow-lg border border-border/50 p-8 md:p-10"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center">
-                  <currentTab.icon className="w-7 h-7 text-accent" />
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
+                  <currentTab.icon className="w-6 h-6 text-accent" />
                 </div>
-                <h3 className="text-2xl md:text-3xl font-heading font-bold text-navy">
-                  {currentTab.title}
-                </h3>
+                <div>
+                  <h3 className="text-xl md:text-2xl font-heading font-bold text-navy">
+                    {currentTab.title}
+                  </h3>
+                </div>
               </div>
-              <div className="text-foreground/80 leading-relaxed whitespace-pre-line text-lg">
+              <div className="text-muted-foreground leading-relaxed whitespace-pre-line pl-16">
                 {currentTab.content}
               </div>
-              <div className="mt-8">
-                <Button variant="accent" size="lg" className="group" asChild>
+              <div className="mt-8 pl-16">
+                <Button variant="accent" size="lg" className="rounded-full group" asChild>
                   <a href="https://wa.me/5511963830660" target="_blank" rel="noopener noreferrer">
                     Fale Conosco
-                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </a>
                 </Button>
               </div>

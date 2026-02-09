@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 const expositores = [
   "https://instalshow.com.br/assets/images/expositores/8.webp",
@@ -20,51 +21,70 @@ const expositores = [
 ];
 
 const Expositores = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const x1 = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
+  const x2 = useTransform(scrollYProgress, [0, 1], ["-15%", "0%"]);
+
+  const row1 = expositores.slice(0, 8);
+  const row2 = expositores.slice(8, 16);
+
   return (
-    <section id="expositores" className="py-20 bg-off-white overflow-hidden">
-      <div className="container mx-auto px-4 mb-12">
+    <section ref={sectionRef} id="expositores" className="section-padding bg-off-white overflow-hidden">
+      <div className="container mx-auto px-4 mb-14">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.7 }}
           className="text-center"
         >
-          <span className="text-accent font-semibold uppercase tracking-wider text-sm">
+          <span className="text-accent font-semibold uppercase tracking-widest text-xs">
             Empresas Confirmadas
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-navy mt-2">
-            EXPOSITORES 2026
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-heading font-black text-navy mt-3">
+            Expositores 2026
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
-            Grandes marcas do setor já confirmaram presença na maior feira de instalações do Brasil
+          <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-base">
+            As maiores marcas do setor já confirmaram presença
           </p>
         </motion.div>
       </div>
 
-      {/* Marquee Container */}
-      <div className="relative">
-        {/* Gradient Overlays */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-off-white to-transparent z-10" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-off-white to-transparent z-10" />
-
-        {/* Marquee */}
-        <div className="flex animate-marquee">
-          {[...expositores, ...expositores].map((logo, index) => (
+      {/* Scrolling rows */}
+      <div className="space-y-6">
+        <motion.div style={{ x: x1 }} className="flex gap-5">
+          {[...row1, ...row1, ...row1].map((logo, index) => (
             <div
-              key={index}
-              className="flex-shrink-0 mx-6 md:mx-8 flex items-center justify-center"
+              key={`r1-${index}`}
+              className="flex-shrink-0 w-36 h-24 md:w-44 md:h-28 bg-white rounded-2xl shadow-card p-5 flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
             >
-              <div className="w-32 h-20 md:w-40 md:h-24 bg-white rounded-lg shadow-sm p-4 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
-                <img
-                  src={logo}
-                  alt={`Expositor ${index + 1}`}
-                  className="max-w-full max-h-full object-contain filter grayscale hover:grayscale-0 transition-all duration-300"
-                />
-              </div>
+              <img
+                src={logo}
+                alt={`Expositor ${(index % row1.length) + 1}`}
+                className="max-w-full max-h-full object-contain filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-400"
+              />
             </div>
           ))}
-        </div>
+        </motion.div>
+
+        <motion.div style={{ x: x2 }} className="flex gap-5">
+          {[...row2, ...row2, ...row2].map((logo, index) => (
+            <div
+              key={`r2-${index}`}
+              className="flex-shrink-0 w-36 h-24 md:w-44 md:h-28 bg-white rounded-2xl shadow-card p-5 flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+            >
+              <img
+                src={logo}
+                alt={`Expositor ${(index % row2.length) + 9}`}
+                className="max-w-full max-h-full object-contain filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-400"
+              />
+            </div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );

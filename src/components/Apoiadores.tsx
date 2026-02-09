@@ -17,41 +17,40 @@ const apoiadores = [
 
 const Apoiadores = () => {
   return (
-    <section className="py-20 bg-white">
+    <section className="section-padding bg-background">
       <div className="container mx-auto px-4">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.7 }}
+          className="text-center mb-14"
         >
-          <span className="text-accent font-semibold uppercase tracking-wider text-sm">
+          <span className="text-accent font-semibold uppercase tracking-widest text-xs">
             Parceiros
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-navy mt-2">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-heading font-black text-navy mt-3">
             Nossos Apoiadores
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
+          <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-base">
             Entidades e instituições que acreditam no potencial da InstalShow
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-5 max-w-5xl mx-auto">
           {apoiadores.map((logo, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="group"
+              transition={{ duration: 0.4, delay: index * 0.04 }}
             >
-              <div className="bg-off-white rounded-xl p-4 md:p-6 flex items-center justify-center h-24 md:h-28 border border-transparent hover:border-accent/20 hover:shadow-md transition-all duration-300">
+              <div className="bg-white rounded-2xl p-5 md:p-6 flex items-center justify-center h-24 md:h-28 shadow-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
                 <img
                   src={logo}
                   alt={`Apoiador ${index + 1}`}
-                  className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300"
+                  className="max-w-full max-h-full object-contain filter grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-400"
                 />
               </div>
             </motion.div>
