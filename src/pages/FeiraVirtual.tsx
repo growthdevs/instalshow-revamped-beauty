@@ -165,7 +165,7 @@ const FeiraVirtual = () => {
                 transition={{ delay: i * 0.03 }}
                 className="bg-white rounded-2xl shadow-card p-5 flex flex-col items-center justify-between gap-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
               >
-                <div className="h-24 md:h-32 flex items-center justify-center w-full">
+                <div className="h-32 md:h-40 flex items-center justify-center w-full">
                   <img
                     src={empresa.logo}
                     alt={empresa.nome}
@@ -194,16 +194,16 @@ const FeiraVirtual = () => {
 
       {/* Modal */}
       <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-navy text-xl">{selected?.nome}</DialogTitle>
-            <DialogDescription>Informações e produtos</DialogDescription>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Detalhes da empresa</DialogTitle>
+            <DialogDescription>Produtos e informações de contato</DialogDescription>
           </DialogHeader>
 
           {selected && (
-            <div className="space-y-6">
+            <div className="flex flex-col gap-6 min-h-0">
               {/* Logo */}
-              <div className="bg-off-white rounded-xl p-6 flex items-center justify-center h-32">
+              <div className="bg-off-white rounded-xl p-8 flex items-center justify-center h-44 shrink-0">
                 <img
                   src={selected.logo}
                   alt={selected.nome}
@@ -211,15 +211,18 @@ const FeiraVirtual = () => {
                 />
               </div>
 
-              {/* Produtos */}
-              <div>
-                <h4 className="text-sm font-semibold text-navy mb-2 uppercase tracking-wider">Produtos</h4>
-                <div className="flex flex-wrap gap-2">
-                  {selected.produtos.map((p) => (
-                    <span key={p} className="bg-secondary text-secondary-foreground text-xs font-medium px-3 py-1.5 rounded-full">
-                      {p}
-                    </span>
-                  ))}
+              {/* Produtos - scrollable */}
+              <div className="min-h-0 flex flex-col">
+                <h4 className="text-sm font-semibold text-navy mb-3 uppercase tracking-wider shrink-0">Produtos</h4>
+                <div className="overflow-y-auto max-h-48 pr-1">
+                  <ul className="space-y-1.5">
+                    {selected.produtos.map((p, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0" />
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
 
