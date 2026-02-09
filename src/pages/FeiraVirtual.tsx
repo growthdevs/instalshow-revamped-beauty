@@ -137,6 +137,14 @@ const FeiraVirtual = () => {
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
+                <ul className="w-full space-y-1 mb-2">
+                  {empresa.produtos.slice(0, 5).map((p, idx) => (
+                    <li key={idx} className="text-[11px] text-muted-foreground truncate flex items-center gap-1.5">
+                      <span className="w-1 h-1 rounded-full bg-accent shrink-0" />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
                 <Button
                   variant="accent"
                   size="sm"
