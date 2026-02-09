@@ -60,7 +60,7 @@ const Expositores = () => {
           {[...row1, ...row1, ...row1].map((logo, index) => (
             <div
               key={`r1-${index}`}
-              className="flex-shrink-0 w-36 h-24 md:w-44 md:h-28 bg-white rounded-2xl shadow-card p-5 flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+              className="flex-shrink-0 w-44 h-28 md:w-56 md:h-36 bg-white rounded-2xl shadow-card p-5 flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
             >
               <img
                 src={logo}
@@ -75,7 +75,7 @@ const Expositores = () => {
           {[...row2, ...row2, ...row2].map((logo, index) => (
             <div
               key={`r2-${index}`}
-              className="flex-shrink-0 w-36 h-24 md:w-44 md:h-28 bg-white rounded-2xl shadow-card p-5 flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+              className="flex-shrink-0 w-44 h-28 md:w-56 md:h-36 bg-white rounded-2xl shadow-card p-5 flex items-center justify-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
             >
               <img
                 src={logo}
