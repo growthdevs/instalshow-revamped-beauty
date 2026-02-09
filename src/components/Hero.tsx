@@ -116,8 +116,8 @@ const Hero = () => {
           </motion.div>
 
           {/* CTA */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Button variant="hero" size="xl" className="rounded-full group" asChild>
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 px-4 sm:px-0">
+            <Button variant="hero" size="xl" className="rounded-full group text-sm sm:text-base px-6 sm:px-10 h-12 sm:h-14" asChild>
               <a href="https://wa.me/5511963830660" target="_blank" rel="noopener noreferrer">
                 Seja um Expositor ou Patrocinador
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
