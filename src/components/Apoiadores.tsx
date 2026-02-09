@@ -46,7 +46,7 @@ const Apoiadores = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.04 }}
             >
-              <div className="bg-white rounded-2xl p-5 md:p-6 flex items-center justify-center h-24 md:h-28 shadow-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+              <div className="bg-white rounded-2xl p-5 md:p-6 flex items-center justify-center h-28 md:h-36 shadow-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
                 <img
                   src={logo}
                   alt={`Apoiador ${index + 1}`}
