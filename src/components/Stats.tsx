@@ -91,8 +91,8 @@ const Stats = () => {
               transition={{ duration: 0.6, delay: index * 0.15 }}
             >
               <div className="glass rounded-2xl p-8 text-center h-full flex flex-col items-center justify-center hover:bg-white/[0.12] transition-all duration-500 group">
-                <div className="w-14 h-14 rounded-2xl bg-blue-400/15 flex items-center justify-center mb-6 group-hover:bg-accent group-hover:scale-110 transition-all duration-300">
-                  <stat.icon className="w-7 h-7 text-blue-400 group-hover:text-white transition-colors" />
+                <div className="w-14 h-14 rounded-2xl bg-accent/15 flex items-center justify-center mb-6 group-hover:bg-blue-500 group-hover:scale-110 transition-all duration-300">
+                  <stat.icon className="w-7 h-7 text-accent group-hover:text-white transition-colors" />
                 </div>
                 <div className="text-5xl md:text-6xl font-heading font-black text-white mb-2">
                   <AnimatedCounter target={stat.number} suffix={stat.suffix} inView={isInView} />
