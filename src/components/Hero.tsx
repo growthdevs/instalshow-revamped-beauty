@@ -88,7 +88,7 @@ const Hero = () => {
           >
             FEIRA E
             <br />
-            <span className="text-gradient">CONGRESSO</span>
+            <span className="text-white">CONGRESSO</span>
           </motion.h1>
 
           {/* Subtitle */}

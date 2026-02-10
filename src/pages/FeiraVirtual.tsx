@@ -92,7 +92,7 @@ const FeiraVirtual = () => {
             transition={{ delay: 0.2 }}
             className="text-white/60 mt-4 max-w-xl mx-auto"
           >
-            Explore as empresas presentes na InstalShow e descubra seus produtos e soluções.
+            Explore as empresas presentes na Instal Show e descubra seus produtos e soluções.
           </motion.p>
         </div>
       </section>

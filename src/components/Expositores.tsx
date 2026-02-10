@@ -95,7 +95,7 @@ const Expositores = () => {
             {currentItems.map((logo, index) => (
               <div
                 key={`expo-${page}-${index}`}
-                className="bg-white rounded-2xl shadow-card p-5 flex items-center justify-center h-28 md:h-36 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+                className="bg-white rounded-2xl shadow-card p-5 flex items-center justify-center h-36 md:h-44 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
               >
                 <img
                   src={logo}

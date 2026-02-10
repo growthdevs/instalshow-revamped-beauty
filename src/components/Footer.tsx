@@ -27,7 +27,7 @@ const Footer = () => {
             <h2 className="text-2xl md:text-4xl font-heading font-black text-white mb-4">
               Garanta seu espaço na
               <br />
-              <span className="text-gradient">InstalShow 2026</span>
+              <span className="text-gradient">Instal Show 2026</span>
             </h2>
             <p className="text-white/50 mb-8 text-base max-w-lg mx-auto">
               Seja um expositor, patrocinador ou visitante. Conecte-se com os maiores profissionais do setor.
@@ -58,7 +58,7 @@ const Footer = () => {
               className="h-10 w-auto mb-5"
             />
             <p className="text-white/40 text-sm leading-relaxed mb-6">
-              A maior feira de instalações elétricas, hidráulicas, ar condicionado e proteção contra incêndios do Brasil.
+            A maior feira de instalações elétricas, hidráulicas, ar condicionado e proteção contra incêndios do Brasil.
             </p>
             <div className="flex gap-2">
               {[
@@ -163,7 +163,7 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
             <p className="text-white/30 text-xs">
-              © 2025 InstalShow. Todos os direitos reservados.
+              © 2025 Instal Show. Todos os direitos reservados.
             </p>
             <p className="text-white/30 text-xs">
               Powered by{" "}

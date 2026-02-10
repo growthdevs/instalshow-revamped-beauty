@@ -3,7 +3,7 @@ import { Play } from "lucide-react";
 
 const Videos = () => {
   return (
-    <section className="section-padding bg-off-white">
+    <section id="instalcast" className="section-padding bg-off-white">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -15,17 +15,17 @@ const Videos = () => {
           <span className="text-accent font-semibold uppercase tracking-widest text-xs">
             Vídeos
           </span>
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-heading font-black text-navy mt-3">
-            Institucional
+          <h2 id="instalcast" className="text-3xl md:text-5xl lg:text-6xl font-heading font-black text-navy mt-3">
+            Instal Cast
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-base">
-            Assista aos depoimentos e veja por que a InstalShow é o evento mais importante do setor
+            Assista aos depoimentos e veja por que a Instal Show é o evento mais importante do setor
           </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
           {[
-            { id: "VIDEO_ID_1", title: "Institucional InstalShow" },
+            { id: "VIDEO_ID_1", title: "Institucional Instal Show" },
             { id: "VIDEO_ID_2", title: "Feedback 2025" },
           ].map((video, index) => (
             <motion.div
