@@ -33,7 +33,7 @@ const Apoiadores = () => {
             Nossos Apoiadores
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto text-base">
-            Entidades e instituições que acreditam no potencial da InstalShow
+            Entidades e instituições que acreditam no potencial da Instal Show
           </p>
         </motion.div>
 
@@ -46,11 +46,11 @@ const Apoiadores = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.04 }}
             >
-              <div className="bg-white rounded-2xl p-5 md:p-6 flex items-center justify-center h-28 md:h-36 shadow-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
+              <div className="bg-white rounded-2xl p-5 md:p-6 flex items-center justify-center h-36 md:h-44 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                 <img
                   src={logo}
                   alt={`Apoiador ${index + 1}`}
-                  className="max-w-full max-h-full object-contain filter grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-400"
+                  className="max-w-full max-h-full object-contain transition-all duration-400"
                 />
               </div>
             </motion.div>

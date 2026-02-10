@@ -15,7 +15,7 @@ const tabs = [
     label: "Quem Somos",
     icon: Users,
     title: "A Maior Feira de Instalações do Brasil",
-    content: `A InstalShow é o principal ponto de encontro dos profissionais de instalações prediais no Brasil. Reunimos os maiores fabricantes, distribuidores e prestadores de serviços dos segmentos de instalações elétricas, hidráulicas, ar condicionado e proteção contra incêndios.
+    content: `A Instal Show é o principal ponto de encontro dos profissionais de instalações prediais no Brasil. Reunimos os maiores fabricantes, distribuidores e prestadores de serviços dos segmentos de instalações elétricas, hidráulicas, ar condicionado e proteção contra incêndios.
 
 Nossa missão é promover negócios, networking e atualização técnica para milhares de profissionais que buscam as melhores soluções do mercado.`,
   },
@@ -63,7 +63,7 @@ const About = () => {
             Sobre o Evento
           </span>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-heading font-black text-navy mt-3">
-            Conheça a InstalShow
+            Conheça a Instal Show
           </h2>
         </motion.div>
 
