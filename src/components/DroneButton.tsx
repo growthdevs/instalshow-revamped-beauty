@@ -12,10 +12,10 @@ const DroneButton = () => {
         onClick={() => setOpen(true)}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1.2, type: "spring", stiffness: 200 }}
+        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full bg-navy shadow-lg hover:shadow-xl flex items-center justify-center"
+        className="fixed bottom-24 right-6 z-50 w-16 h-16 rounded-full bg-accent shadow-lg hover:shadow-xl flex items-center justify-center"
         aria-label="Assistir vídeo drone"
       >
         <Video className="w-6 h-6 text-white" />
