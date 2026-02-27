@@ -8,6 +8,7 @@ import Gallery from "@/components/Gallery";
 import Videos from "@/components/Videos";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import DroneButton from "@/components/DroneButton";
 
 const Index = () => {
   return (
@@ -21,6 +22,7 @@ const Index = () => {
       <Gallery />
       <Videos />
       <Footer />
+      <DroneButton />
       <WhatsAppButton />
     </div>
   );
