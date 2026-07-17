@@ -1,50 +1,21 @@
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, MapPin, ArrowRight } from "lucide-react";
-import { Button } from "./ui/button";
+import { Instagram } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 
-const CountdownUnit = ({ value, label }: { value: number; label: string }) => (
-  <div className="flex flex-col items-center">
-    <div className="glass rounded-xl w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mb-2">
-      <span className="text-2xl md:text-3xl font-heading font-black text-white">
-        {String(value).padStart(2, "0")}
-      </span>
-    </div>
-    <span className="text-white/50 text-xs md:text-sm font-medium uppercase tracking-wider">
-      {label}
-    </span>
-  </div>
-);
-
 const Hero = () => {
-  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const eventDate = new Date("2026-06-25T09:00:00-03:00").getTime();
-    const update = () => {
-      const now = Date.now();
-      const diff = Math.max(0, eventDate - now);
-      setCountdown({
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((diff / (1000 * 60)) % 60),
-        seconds: Math.floor((diff / 1000) % 60),
-      });
-    };
-    update();
-    const timer = setInterval(update, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
+    visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 30, filter: "blur(10px)" },
-    visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: "easeOut" as const } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: { duration: 0.7, ease: "easeOut" as const },
+    },
   };
 
   return (
@@ -57,16 +28,12 @@ const Hero = () => {
         transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Multi-layer overlay */}
-      <div className="absolute inset-0 bg-hero-overlay" />
-      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-transparent to-navy-dark/60" />
-      
-      {/* Decorative elements */}
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 rounded-full bg-accent/5 blur-3xl" />
-      <div className="absolute bottom-1/4 left-1/4 w-72 h-72 rounded-full bg-navy-light/10 blur-3xl" />
+      {/* Dark overlay to match reference */}
+      <div className="absolute inset-0 bg-navy-dark/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-navy-dark/60 via-navy-dark/50 to-navy-dark" />
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 text-center pt-24 pb-16">
+      <div className="relative z-10 container mx-auto px-4 text-center pt-28 pb-16">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -74,8 +41,8 @@ const Hero = () => {
           className="max-w-4xl mx-auto"
         >
           {/* Badge */}
-          <motion.div variants={itemVariants} className="inline-block mb-8">
-            <span className="glass inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-white/90">
+          <motion.div variants={itemVariants} className="inline-block mb-10 md:mb-12">
+            <span className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-sm md:text-[15px] font-medium text-white bg-navy-dark/70 border border-white/10 backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse-glow" />
               3ª Edição • 25 e 26 de Junho 2026
             </span>
@@ -84,63 +51,47 @@ const Hero = () => {
           {/* Main Title */}
           <motion.h1
             variants={itemVariants}
-            className="text-4xl md:text-6xl lg:text-8xl font-heading font-black text-white mb-4 leading-[0.95] tracking-tight"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-heading font-black text-white mb-8 leading-[0.95] tracking-tight"
           >
             FEIRA E
             <br />
-            <span className="text-white">CONGRESSO</span>
+            CONGRESSO
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p
             variants={itemVariants}
-            className="text-base md:text-lg lg:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed font-light"
+            className="text-base md:text-lg lg:text-xl text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed font-light"
           >
-            Instalações Elétricas, Hidráulicas, Ar Condicionado
-            {" "}e Proteção contra Incêndios no Brasil.
+            Instalações Elétricas, Hidráulicas, Ar Condicionado e Proteção
+            contra Incêndios no Brasil.
           </motion.p>
 
-          {/* Event Details */}
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-wrap items-center justify-center gap-6 mb-10"
-          >
-            <div className="flex items-center gap-2.5 glass rounded-full px-5 py-2.5">
-              <Calendar className="w-4 h-4 text-accent" />
-              <span className="text-sm md:text-base font-medium text-white/90">25 e 26 de Junho 2026</span>
-            </div>
-            <div className="flex items-center gap-2.5 glass rounded-full px-5 py-2.5">
-              <MapPin className="w-4 h-4 text-accent" />
-              <span className="text-sm md:text-base font-medium text-white/90">Arca - São Paulo, SP</span>
-            </div>
+          {/* Info pill */}
+          <motion.div variants={itemVariants} className="mb-16">
+            <span className="inline-flex items-center px-6 py-3.5 rounded-full text-sm md:text-base font-medium text-white/90 bg-white/[0.04] border border-white/15 backdrop-blur-md hover:bg-white/[0.08] transition-colors">
+              4ª edição 2027 * em breve mais informações
+            </span>
           </motion.div>
 
-          {/* CTA */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 px-4 sm:px-0">
-            <Button variant="hero" size="xl" className="rounded-full group text-sm sm:text-base px-6 sm:px-10 h-12 sm:h-14" asChild>
-              <a href="https://wa.me/5511963830660" target="_blank" rel="noopener noreferrer">
-                Seja um Expositor ou Patrocinador
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          {/* Social block */}
+          <motion.div variants={itemVariants} className="space-y-5">
+            <p className="text-white/50 text-xs md:text-sm uppercase tracking-[0.25em] font-semibold">
+              Evento iniciado
+            </p>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-heading font-bold text-white leading-tight">
+              Acompanhe nosso evento nas redes sociais
+            </h2>
+            <div className="pt-2">
+              <a
+                href="https://www.instagram.com/instalshow_oficial/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white/[0.06] border border-white/15 backdrop-blur-md text-white font-medium hover:bg-accent hover:border-accent transition-all"
+              >
+                <Instagram className="w-5 h-5" />
+                Instagram
               </a>
-            </Button>
-            <Button variant="hero-outline" size="xl" className="rounded-full" asChild>
-              <a href="#sobre">
-                Saiba Mais
-              </a>
-            </Button>
-          </motion.div>
-
-          {/* Countdown */}
-          <motion.div variants={itemVariants}>
-            <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-medium">Faltam</p>
-            <div className="flex items-center justify-center gap-3 md:gap-5">
-              <CountdownUnit value={countdown.days} label="Dias" />
-              <span className="text-white/20 text-2xl font-light mt-[-24px]">:</span>
-              <CountdownUnit value={countdown.hours} label="Horas" />
-              <span className="text-white/20 text-2xl font-light mt-[-24px]">:</span>
-              <CountdownUnit value={countdown.minutes} label="Min" />
-              <span className="text-white/20 text-2xl font-light mt-[-24px]">:</span>
-              <CountdownUnit value={countdown.seconds} label="Seg" />
             </div>
           </motion.div>
         </motion.div>
@@ -150,7 +101,7 @@ const Hero = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
+        transition={{ delay: 1.5 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
         <motion.div
