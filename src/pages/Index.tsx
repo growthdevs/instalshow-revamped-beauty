@@ -4,6 +4,8 @@ import Expositores from "@/components/Expositores";
 import Stats from "@/components/Stats";
 import About from "@/components/About";
 import Apoiadores from "@/components/Apoiadores";
+import Agenda from "@/components/Agenda";
+import Palestrantes from "@/components/Palestrantes";
 import Gallery from "@/components/Gallery";
 import Videos from "@/components/Videos";
 import Footer from "@/components/Footer";
@@ -19,6 +21,8 @@ const Index = () => {
       <Stats />
       <About />
       <Apoiadores />
+      <Agenda />
+      <Palestrantes />
       <Gallery />
       <Videos />
       <Footer />
