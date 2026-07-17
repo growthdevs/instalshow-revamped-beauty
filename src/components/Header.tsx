@@ -17,8 +17,10 @@ const Header = () => {
   const navLinks = [
     { label: "Institucional", href: "#sobre" },
     { label: "Expositores", href: "#expositores" },
-    { label: "Instal Cast", href: "#instalcast" },
+    { label: "Agenda", href: "#agenda" },
+    { label: "Palestrantes", href: "#palestrantes" },
     { label: "Galeria", href: "#galeria" },
+    { label: "Instal Cast", href: "#instalcast" },
     { label: "Calculadora", href: "https://calculadora.instalshow.com.br", external: true },
     { label: "Contato", href: "#contato" },
   ];

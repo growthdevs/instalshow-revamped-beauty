@@ -77,7 +77,7 @@ const Hero = () => {
           <motion.div variants={itemVariants} className="inline-block mb-8">
             <span className="glass inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-white/90">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse-glow" />
-              2ª Edição • 25 e 26 de Junho 2026
+              3ª Edição • 25 e 26 de Junho 2026
             </span>
           </motion.div>
 
