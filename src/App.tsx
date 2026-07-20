@@ -27,6 +27,7 @@ const App = () => (
           <Route path="/expositor/reset-password" element={<ExpositorResetPassword />} />
           <Route path="/expositor/dashboard" element={<ExpositorDashboard />} />
           <Route path="/expositor/simulador" element={<ExpositorSimulador />} />
+          <Route path="/admin/vendas" element={<AdminVendas />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
 
