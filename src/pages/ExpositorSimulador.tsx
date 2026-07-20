@@ -326,12 +326,14 @@ const ExpositorSimulador = () => {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              to="/expositor/dashboard"
-              className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
-            >
-              <LayoutDashboard className="w-4 h-4" /> Meus dados
-            </Link>
+            {!isAdmin && (
+              <Link
+                to="/expositor/dashboard"
+                className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                <LayoutDashboard className="w-4 h-4" /> Meus dados
+              </Link>
+            )}
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
