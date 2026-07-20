@@ -298,6 +298,17 @@ const ExpositorLogin = () => {
                   />
                 </div>
                 <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
+                  <input
+                    type="tel"
+                    placeholder="Celular"
+                    value={signupData.phone}
+                    onChange={(e) => setSignupData({ ...signupData, phone: formatPhone(e.target.value) })}
+                    className="w-full bg-white/10 border border-white/20 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-white/60 focus:outline-none focus:border-white/60 focus:bg-white/15 transition-all"
+                    required
+                  />
+                </div>
+                <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                   <input
                     type="password"
