@@ -10,6 +10,7 @@ import ExpositorResetPassword from "./pages/ExpositorResetPassword";
 import ExpositorDashboard from "./pages/ExpositorDashboard";
 import ExpositorSimulador from "./pages/ExpositorSimulador";
 import AdminVendas from "./pages/AdminVendas";
+import AdminUsuarios from "./pages/AdminUsuarios";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/expositor/dashboard" element={<ExpositorDashboard />} />
           <Route path="/expositor/simulador" element={<ExpositorSimulador />} />
           <Route path="/admin/vendas" element={<AdminVendas />} />
+          <Route path="/admin/administradores" element={<AdminUsuarios />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
 
