@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { z } from "zod";
-import { ArrowLeft, Building2, Mail, Lock, FileText, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Building2, Mail, Lock, FileText, Loader2, Sparkles, CheckCircle2, User, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import logoInstalshow from "@/assets/logo-instalshow.svg";
