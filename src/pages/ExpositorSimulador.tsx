@@ -11,6 +11,9 @@ import {
   Loader2,
   Gift,
   LayoutDashboard,
+  ShieldCheck,
+  CheckCircle2,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -75,6 +78,7 @@ const ExpositorSimulador = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [qtd, setQtd] = useState<Record<string, number>>({
     bronze: 0,
@@ -84,6 +88,19 @@ const ExpositorSimulador = () => {
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
   const [primeira, setPrimeira] = useState(false);
 
+  // Admin sale modal
+  const [saleOpen, setSaleOpen] = useState(false);
+  const [savingSale, setSavingSale] = useState(false);
+  const [saleForm, setSaleForm] = useState({
+    company_name: "",
+    cnpj: "",
+    responsible_name: "",
+    responsible_email: "",
+    negotiated_value: "",
+    notes: "",
+    sale_date: "",
+  });
+
   useEffect(() => {
     const init = async () => {
       const { data: userRes } = await supabase.auth.getUser();
@@ -91,14 +108,21 @@ const ExpositorSimulador = () => {
         navigate("/expositor/login", { replace: true });
         return;
       }
-      const { data } = await supabase
-        .from("expositor_profiles")
-        .select("company_name, cnpj, email")
-        .eq("id", userRes.user.id)
-        .maybeSingle();
+      const [{ data: prof }, { data: roles }] = await Promise.all([
+        supabase
+          .from("expositor_profiles")
+          .select("company_name, cnpj, email")
+          .eq("id", userRes.user.id)
+          .maybeSingle(),
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userRes.user.id),
+      ]);
       setProfile(
-        data ?? { company_name: "-", cnpj: "-", email: userRes.user.email ?? "-" },
+        prof ?? { company_name: "-", cnpj: "-", email: userRes.user.email ?? "-" },
       );
+      setIsAdmin(!!roles?.some((r) => r.role === "admin"));
       setLoading(false);
     };
     init();
@@ -175,6 +199,110 @@ const ExpositorSimulador = () => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
   };
 
+  const openSaleModal = () => {
+    if (totalStands === 0) {
+      toast({
+        title: "Selecione ao menos 1 stand",
+        description: "Adicione a quantidade desejada para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000;
+    const localIso = new Date(now.getTime() - tzOffset).toISOString().slice(0, 16);
+    setSaleForm((s) => ({
+      ...s,
+      company_name: s.company_name || profile?.company_name || "",
+      cnpj: s.cnpj || profile?.cnpj || "",
+      responsible_email: s.responsible_email || profile?.email || "",
+      negotiated_value: s.negotiated_value || total.toFixed(2),
+      sale_date: s.sale_date || localIso,
+    }));
+    setSaleOpen(true);
+  };
+
+  const handleRegistrarVenda = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const value = parseFloat(saleForm.negotiated_value.replace(",", "."));
+    if (
+      !saleForm.company_name.trim() ||
+      !saleForm.cnpj.trim() ||
+      !saleForm.responsible_name.trim() ||
+      !saleForm.responsible_email.trim() ||
+      !saleForm.sale_date ||
+      isNaN(value) ||
+      value <= 0
+    ) {
+      toast({
+        title: "Preencha todos os campos obrigatórios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingSale(true);
+    const { data: userRes } = await supabase.auth.getUser();
+    if (!userRes.user) {
+      setSavingSale(false);
+      return;
+    }
+
+    const simulation_data = {
+      stands: STANDS.filter((s) => (qtd[s.id] || 0) > 0).map((s) => ({
+        id: s.id,
+        name: s.name,
+        quantity: qtd[s.id],
+        unit_price: s.price,
+      })),
+      eventos: EVENTOS_ADICIONAIS.filter((ev) => eventos[ev.id]).map((ev) => ({
+        id: ev.id,
+        name: ev.name,
+        price: ev.price,
+      })),
+      first_participation_discount: primeira ? DESCONTO_PRIMEIRA_PCT : 0,
+      subtotal,
+      discount_value: descontoValor,
+      simulated_total: total,
+    };
+
+    const { error } = await supabase.from("sales").insert({
+      created_by: userRes.user.id,
+      company_name: saleForm.company_name.trim(),
+      cnpj: saleForm.cnpj.trim(),
+      responsible_name: saleForm.responsible_name.trim(),
+      responsible_email: saleForm.responsible_email.trim(),
+      negotiated_value: value,
+      notes: saleForm.notes.trim() || null,
+      sale_date: new Date(saleForm.sale_date).toISOString(),
+      simulation_data,
+    });
+    setSavingSale(false);
+
+    if (error) {
+      toast({ title: "Erro ao registrar venda", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    toast({
+      title: "Venda registrada com sucesso!",
+      description: `${saleForm.company_name} — ${currency(value)}`,
+    });
+    setSaleOpen(false);
+    setSaleForm({
+      company_name: "",
+      cnpj: "",
+      responsible_name: "",
+      responsible_email: "",
+      negotiated_value: "",
+      notes: "",
+      sale_date: "",
+    });
+    setQtd({ bronze: 0, prata: 0, ouro: 0 });
+    setEventos({});
+    setPrimeira(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -187,16 +315,25 @@ const ExpositorSimulador = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-white/10 bg-navy-dark/95 backdrop-blur-xl sticky top-0 z-40 shadow-lg">
         <div className="container mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/">
-            <img src={logoInstalshow} alt="Instal Show" className="h-9 w-auto" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/expositor/dashboard"
-              className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
-            >
-              <LayoutDashboard className="w-4 h-4" /> Meus dados
+          <div className="flex items-center gap-3">
+            <Link to="/">
+              <img src={logoInstalshow} alt="Instal Show" className="h-9 w-auto" />
             </Link>
+            {isAdmin && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-white bg-tertiary/80 px-2.5 py-1 rounded-full">
+                <ShieldCheck className="w-3 h-3" /> Admin
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {!isAdmin && (
+              <Link
+                to="/expositor/dashboard"
+                className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                <LayoutDashboard className="w-4 h-4" /> Meus dados
+              </Link>
+            )}
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
@@ -210,14 +347,17 @@ const ExpositorSimulador = () => {
       <main className="container mx-auto px-4 lg:px-8 py-8 lg:py-12">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <span className="text-xs uppercase tracking-wider text-primary font-semibold">
-            Simulador de Stands
+            {isAdmin ? "Painel administrativo — Registro de vendas" : "Simulador de Stands"}
           </span>
           <h1 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-2">
-            Monte sua participação, {profile?.company_name}
+            {isAdmin
+              ? "Monte a simulação e registre a venda"
+              : `Monte sua participação, ${profile?.company_name}`}
           </h1>
           <p className="text-foreground/60 mb-8 max-w-2xl">
-            Escolha seus stands e eventos adicionais. Ao final, envie a
-            simulação diretamente para nossa equipe comercial via WhatsApp.
+            {isAdmin
+              ? "Selecione stands e eventos, ajuste o valor negociado e registre a venda no sistema."
+              : "Escolha seus stands e eventos adicionais. Ao final, envie a simulação diretamente para nossa equipe comercial via WhatsApp."}
           </p>
         </motion.div>
 
@@ -418,20 +558,189 @@ const ExpositorSimulador = () => {
                 </div>
               </div>
 
-              <button
-                onClick={handleEnviarWhats}
-                className="mt-6 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 rounded-xl transition-colors"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Enviar para o comercial
-              </button>
-              <p className="text-foreground/40 text-xs text-center mt-3">
-                A simulação será enviada via WhatsApp para nosso time comercial.
-              </p>
+              {isAdmin ? (
+                <>
+                  <button
+                    onClick={openSaleModal}
+                    className="mt-6 w-full flex items-center justify-center gap-2 bg-tertiary hover:bg-tertiary/90 text-white font-semibold py-3.5 rounded-xl transition-colors"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    Registrar venda
+                  </button>
+                  <p className="text-foreground/40 text-xs text-center mt-3">
+                    A venda será registrada no sistema para acompanhamento interno.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleEnviarWhats}
+                    className="mt-6 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 rounded-xl transition-colors"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Enviar para o comercial
+                  </button>
+                  <p className="text-foreground/40 text-xs text-center mt-3">
+                    A simulação será enviada via WhatsApp para nosso time comercial.
+                  </p>
+                </>
+              )}
             </div>
           </aside>
         </div>
       </main>
+
+      {/* Modal Registrar venda (admin) */}
+      {saleOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => !savingSale && setSaleOpen(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-border overflow-hidden max-h-[90vh] flex flex-col"
+          >
+            <div className="flex items-center justify-between p-5 border-b border-border bg-muted">
+              <div>
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-tertiary" />
+                  Registrar venda
+                </h3>
+                <p className="text-foreground/60 text-sm">
+                  Preencha os dados complementares para concluir o registro.
+                </p>
+              </div>
+              <button
+                onClick={() => !savingSale && setSaleOpen(false)}
+                className="w-9 h-9 rounded-full hover:bg-background flex items-center justify-center text-foreground/60"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegistrarVenda} className="p-5 lg:p-6 space-y-4 overflow-y-auto">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    Nome fantasia *
+                  </label>
+                  <input
+                    type="text"
+                    value={saleForm.company_name}
+                    onChange={(e) => setSaleForm({ ...saleForm, company_name: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    CNPJ *
+                  </label>
+                  <input
+                    type="text"
+                    value={saleForm.cnpj}
+                    onChange={(e) => setSaleForm({ ...saleForm, cnpj: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    Nome do responsável *
+                  </label>
+                  <input
+                    type="text"
+                    value={saleForm.responsible_name}
+                    onChange={(e) => setSaleForm({ ...saleForm, responsible_name: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    E-mail do responsável *
+                  </label>
+                  <input
+                    type="email"
+                    value={saleForm.responsible_email}
+                    onChange={(e) => setSaleForm({ ...saleForm, responsible_email: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    Valor negociado (R$) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={saleForm.negotiated_value}
+                    onChange={(e) => setSaleForm({ ...saleForm, negotiated_value: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                  <p className="text-[11px] text-foreground/50 mt-1">
+                    Simulado: {currency(total)} — ajuste conforme a negociação.
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    Data e hora da venda *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={saleForm.sale_date}
+                    onChange={(e) => setSaleForm({ ...saleForm, sale_date: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                  Observações da venda
+                </label>
+                <textarea
+                  value={saleForm.notes}
+                  onChange={(e) => setSaleForm({ ...saleForm, notes: e.target.value })}
+                  rows={3}
+                  placeholder="Itens negociados fora do simulador, condições especiais, etc."
+                  className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSaleOpen(false)}
+                  disabled={savingSale}
+                  className="flex-1 py-3 rounded-xl bg-muted border border-border text-foreground/80 hover:bg-muted/70 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingSale}
+                  className="flex-1 py-3 rounded-xl bg-tertiary hover:bg-tertiary/90 text-white font-semibold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                >
+                  {savingSale ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" /> Confirmar venda
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
