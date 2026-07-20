@@ -291,9 +291,9 @@ const ExpositorSimulador = () => {
             </section>
 
             {/* Eventos adicionais */}
-            <section className="bg-white border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
+            <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-4 h-4 text-accent" />
+                <Sparkles className="w-4 h-4 text-primary" />
                 <h2 className="text-foreground font-semibold">Eventos adicionais</h2>
               </div>
               <p className="text-foreground/50 text-sm mb-5">
@@ -320,10 +320,10 @@ const ExpositorSimulador = () => {
                         className="w-5 h-5 accent-accent"
                       />
                       <div className="flex-1">
-                        <div className="text-foreground font-medium">{e.name}</div>
+                      <div className="text-foreground font-medium">{e.name}</div>
                         <div className="text-foreground/50 text-sm">{e.desc}</div>
                       </div>
-                      <div className="text-accent font-semibold whitespace-nowrap">
+                      <div className="text-foreground font-semibold whitespace-nowrap">
                         {currency(e.price)}
                       </div>
                     </label>
@@ -333,21 +333,21 @@ const ExpositorSimulador = () => {
             </section>
 
             {/* Desconto */}
-            <section className="bg-white border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
+            <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
               <label
                 className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
                   primeira
-                    ? "bg-accent/5 border-accent/40"
-                    : "bg-muted/30 border-border hover:border-foreground/20"
+                    ? "bg-success/5 border-success/40"
+                    : "bg-background border-border hover:border-foreground/20"
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={primeira}
                   onChange={(e) => setPrimeira(e.target.checked)}
-                  className="w-5 h-5 accent-accent"
+                  className="w-5 h-5 accent-success"
                 />
-                <Gift className="w-5 h-5 text-accent" />
+                <Gift className="w-5 h-5 text-primary" />
                 <div className="flex-1">
                   <div className="text-foreground font-medium">
                     É a 1ª participação da sua empresa no Instal Show?
