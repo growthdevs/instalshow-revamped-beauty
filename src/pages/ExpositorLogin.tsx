@@ -265,6 +265,17 @@ const ExpositorLogin = () => {
                   />
                 </div>
                 <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
+                  <input
+                    type="text"
+                    placeholder="Nome do responsável"
+                    value={signupData.responsible_name}
+                    onChange={(e) => setSignupData({ ...signupData, responsible_name: e.target.value })}
+                    className="w-full bg-white/10 border border-white/20 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-white/60 focus:outline-none focus:border-white/60 focus:bg-white/15 transition-all"
+                    required
+                  />
+                </div>
+                <div className="relative">
                   <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                   <input
                     type="text"
