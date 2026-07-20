@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LogOut, Building2, Mail, FileText, KeyRound, Loader2, ArrowLeft } from "lucide-react";
+import { LogOut, Building2, Mail, FileText, KeyRound, Loader2, ArrowLeft, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import logoInstalshow from "@/assets/logo-instalshow.svg";
@@ -12,8 +12,7 @@ const ExpositorDashboard = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [changingPass, setChangingPass] = useState(false);
-  const [newPass, setNewPass] = useState("");
+  const [sendingReset, setSendingReset] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -40,21 +39,21 @@ const ExpositorDashboard = () => {
     navigate("/expositor/login", { replace: true });
   };
 
-  const handleChangePass = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPass.length < 6) {
-      toast({ title: "Senha muito curta", description: "Mínimo 6 caracteres.", variant: "destructive" });
+  const handleSendReset = async () => {
+    if (!profile?.email || profile.email === "-") {
+      toast({ title: "E-mail indisponível", variant: "destructive" });
       return;
     }
-    setChangingPass(true);
-    const { error } = await supabase.auth.updateUser({ password: newPass });
-    setChangingPass(false);
+    setSendingReset(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
+      redirectTo: `${window.location.origin}/expositor/reset-password`,
+    });
+    setSendingReset(false);
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
       return;
     }
-    setNewPass("");
-    toast({ title: "Senha alterada com sucesso!" });
+    toast({ title: "E-mail enviado!", description: "Confira sua caixa de entrada para redefinir a senha." });
   };
 
   if (loading) {
@@ -110,23 +109,16 @@ const ExpositorDashboard = () => {
             <h2 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
               <KeyRound className="w-4 h-4" /> Alterar senha
             </h2>
-            <p className="text-white/60 text-sm mb-4">Escolha uma nova senha para sua conta.</p>
-            <form onSubmit={handleChangePass} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="password"
-                placeholder="Nova senha"
-                value={newPass}
-                onChange={(e) => setNewPass(e.target.value)}
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-accent/60 transition-all"
-              />
-              <button
-                type="submit"
-                disabled={changingPass}
-                className="px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-              >
-                {changingPass ? <Loader2 className="w-4 h-4 animate-spin" /> : "Alterar"}
-              </button>
-            </form>
+            <p className="text-white/60 text-sm mb-4">
+              Enviaremos um link para <span className="text-white">{profile?.email}</span> com instruções para redefinir sua senha.
+            </p>
+            <button
+              onClick={handleSendReset}
+              disabled={sendingReset}
+              className="px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {sendingReset ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Enviar e-mail</>}
+            </button>
           </section>
         </motion.div>
       </main>

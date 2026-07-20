@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { z } from "zod";
-import { ArrowLeft, Building2, Mail, Lock, FileText, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Building2, Mail, Lock, FileText, Loader2, Sparkles, CheckCircle2, User, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import logoInstalshow from "@/assets/logo-instalshow.svg";
@@ -14,13 +14,28 @@ const loginSchema = z.object({
 
 const signupSchema = z.object({
   company_name: z.string().trim().min(2, "Informe o nome da empresa").max(120),
+  responsible_name: z.string().trim().min(2, "Informe o nome do responsável").max(120),
   email: z.string().trim().email("E-mail inválido").max(255),
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => v.replace(/\D/g, "").length >= 10 && v.replace(/\D/g, "").length <= 11, "Celular inválido"),
   cnpj: z
     .string()
     .trim()
     .refine((v) => v.replace(/\D/g, "").length === 14, "CNPJ deve ter 14 dígitos"),
   password: z.string().min(6, "Senha deve ter ao menos 6 caracteres").max(72),
 });
+
+const formatPhone = (v: string) => {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 10) {
+    return d.replace(/^(\d{0,2})(\d{0,4})(\d{0,4}).*/, (_, a, b, c) =>
+      [a && `(${a}`, a && a.length === 2 ? ") " : "", b, c && `-${c}`].filter(Boolean).join(""),
+    );
+  }
+  return d.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
+};
 
 const formatCNPJ = (v: string) =>
   v
@@ -34,7 +49,7 @@ const formatCNPJ = (v: string) =>
 const ExpositorLogin = () => {
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [signupData, setSignupData] = useState({ company_name: "", email: "", cnpj: "", password: "" });
+  const [signupData, setSignupData] = useState({ company_name: "", responsible_name: "", email: "", phone: "", cnpj: "", password: "" });
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loadingSignup, setLoadingSignup] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
@@ -83,6 +98,8 @@ const ExpositorLogin = () => {
         emailRedirectTo: `${window.location.origin}/expositor/simulador`,
         data: {
           company_name: parsed.data.company_name,
+          responsible_name: parsed.data.responsible_name,
+          phone: parsed.data.phone,
           cnpj: parsed.data.cnpj.replace(/\D/g, ""),
         },
       },
@@ -248,6 +265,17 @@ const ExpositorLogin = () => {
                   />
                 </div>
                 <div className="relative">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
+                  <input
+                    type="text"
+                    placeholder="Nome do responsável"
+                    value={signupData.responsible_name}
+                    onChange={(e) => setSignupData({ ...signupData, responsible_name: e.target.value })}
+                    className="w-full bg-white/10 border border-white/20 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-white/60 focus:outline-none focus:border-white/60 focus:bg-white/15 transition-all"
+                    required
+                  />
+                </div>
+                <div className="relative">
                   <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                   <input
                     type="text"
@@ -265,6 +293,17 @@ const ExpositorLogin = () => {
                     placeholder="E-mail corporativo"
                     value={signupData.email}
                     onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                    className="w-full bg-white/10 border border-white/20 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-white/60 focus:outline-none focus:border-white/60 focus:bg-white/15 transition-all"
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
+                  <input
+                    type="tel"
+                    placeholder="Celular"
+                    value={signupData.phone}
+                    onChange={(e) => setSignupData({ ...signupData, phone: formatPhone(e.target.value) })}
                     className="w-full bg-white/10 border border-white/20 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-white/60 focus:outline-none focus:border-white/60 focus:bg-white/15 transition-all"
                     required
                   />
