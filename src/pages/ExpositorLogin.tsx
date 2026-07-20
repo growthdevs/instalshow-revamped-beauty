@@ -14,13 +14,28 @@ const loginSchema = z.object({
 
 const signupSchema = z.object({
   company_name: z.string().trim().min(2, "Informe o nome da empresa").max(120),
+  responsible_name: z.string().trim().min(2, "Informe o nome do responsável").max(120),
   email: z.string().trim().email("E-mail inválido").max(255),
+  phone: z
+    .string()
+    .trim()
+    .refine((v) => v.replace(/\D/g, "").length >= 10 && v.replace(/\D/g, "").length <= 11, "Celular inválido"),
   cnpj: z
     .string()
     .trim()
     .refine((v) => v.replace(/\D/g, "").length === 14, "CNPJ deve ter 14 dígitos"),
   password: z.string().min(6, "Senha deve ter ao menos 6 caracteres").max(72),
 });
+
+const formatPhone = (v: string) => {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 10) {
+    return d.replace(/^(\d{0,2})(\d{0,4})(\d{0,4}).*/, (_, a, b, c) =>
+      [a && `(${a}`, a && a.length === 2 ? ") " : "", b, c && `-${c}`].filter(Boolean).join(""),
+    );
+  }
+  return d.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
+};
 
 const formatCNPJ = (v: string) =>
   v
