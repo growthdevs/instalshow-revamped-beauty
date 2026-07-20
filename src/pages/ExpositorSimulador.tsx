@@ -345,14 +345,17 @@ const ExpositorSimulador = () => {
       <main className="container mx-auto px-4 lg:px-8 py-8 lg:py-12">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <span className="text-xs uppercase tracking-wider text-primary font-semibold">
-            Simulador de Stands
+            {isAdmin ? "Painel administrativo — Registro de vendas" : "Simulador de Stands"}
           </span>
           <h1 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-2">
-            Monte sua participação, {profile?.company_name}
+            {isAdmin
+              ? "Monte a simulação e registre a venda"
+              : `Monte sua participação, ${profile?.company_name}`}
           </h1>
           <p className="text-foreground/60 mb-8 max-w-2xl">
-            Escolha seus stands e eventos adicionais. Ao final, envie a
-            simulação diretamente para nossa equipe comercial via WhatsApp.
+            {isAdmin
+              ? "Selecione stands e eventos, ajuste o valor negociado e registre a venda no sistema."
+              : "Escolha seus stands e eventos adicionais. Ao final, envie a simulação diretamente para nossa equipe comercial via WhatsApp."}
           </p>
         </motion.div>
 
