@@ -78,6 +78,7 @@ const ExpositorSimulador = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [qtd, setQtd] = useState<Record<string, number>>({
     bronze: 0,
@@ -87,6 +88,19 @@ const ExpositorSimulador = () => {
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
   const [primeira, setPrimeira] = useState(false);
 
+  // Admin sale modal
+  const [saleOpen, setSaleOpen] = useState(false);
+  const [savingSale, setSavingSale] = useState(false);
+  const [saleForm, setSaleForm] = useState({
+    company_name: "",
+    cnpj: "",
+    responsible_name: "",
+    responsible_email: "",
+    negotiated_value: "",
+    notes: "",
+    sale_date: "",
+  });
+
   useEffect(() => {
     const init = async () => {
       const { data: userRes } = await supabase.auth.getUser();
@@ -94,14 +108,21 @@ const ExpositorSimulador = () => {
         navigate("/expositor/login", { replace: true });
         return;
       }
-      const { data } = await supabase
-        .from("expositor_profiles")
-        .select("company_name, cnpj, email")
-        .eq("id", userRes.user.id)
-        .maybeSingle();
+      const [{ data: prof }, { data: roles }] = await Promise.all([
+        supabase
+          .from("expositor_profiles")
+          .select("company_name, cnpj, email")
+          .eq("id", userRes.user.id)
+          .maybeSingle(),
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userRes.user.id),
+      ]);
       setProfile(
-        data ?? { company_name: "-", cnpj: "-", email: userRes.user.email ?? "-" },
+        prof ?? { company_name: "-", cnpj: "-", email: userRes.user.email ?? "-" },
       );
+      setIsAdmin(!!roles?.some((r) => r.role === "admin"));
       setLoading(false);
     };
     init();
