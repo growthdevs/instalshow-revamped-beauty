@@ -315,9 +315,16 @@ const ExpositorSimulador = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-white/10 bg-navy-dark/95 backdrop-blur-xl sticky top-0 z-40 shadow-lg">
         <div className="container mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/">
-            <img src={logoInstalshow} alt="Instal Show" className="h-9 w-auto" />
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/">
+              <img src={logoInstalshow} alt="Instal Show" className="h-9 w-auto" />
+            </Link>
+            {isAdmin && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-white bg-tertiary/80 px-2.5 py-1 rounded-full">
+                <ShieldCheck className="w-3 h-3" /> Admin
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <Link
               to="/expositor/dashboard"
