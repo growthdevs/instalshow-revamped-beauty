@@ -176,9 +176,17 @@ const Header = () => {
                   {link.label}
                 </motion.a>
               ))}
+              <a
+                href="/expositor/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center justify-center gap-2 mt-2 py-3 px-4 rounded-full bg-accent text-white text-sm font-semibold shadow-lg shadow-accent/30"
+              >
+                <LogIn className="w-4 h-4" />
+                Área do Expositor
+              </a>
               <button
                 onClick={toggleLang}
-                className="flex items-center justify-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold py-2.5 mt-3 rounded-full border border-white/10 hover:bg-white/5"
+                className="flex items-center justify-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold py-2.5 mt-2 rounded-full border border-white/10 hover:bg-white/5"
               >
                 <span className="text-base leading-none">{lang === "pt" ? "🇧🇷" : "🇺🇸"}</span>
                 {lang === "pt" ? "Português" : "English"}
