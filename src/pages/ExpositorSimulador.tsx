@@ -556,20 +556,189 @@ const ExpositorSimulador = () => {
                 </div>
               </div>
 
-              <button
-                onClick={handleEnviarWhats}
-                className="mt-6 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 rounded-xl transition-colors"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Enviar para o comercial
-              </button>
-              <p className="text-foreground/40 text-xs text-center mt-3">
-                A simulação será enviada via WhatsApp para nosso time comercial.
-              </p>
+              {isAdmin ? (
+                <>
+                  <button
+                    onClick={openSaleModal}
+                    className="mt-6 w-full flex items-center justify-center gap-2 bg-tertiary hover:bg-tertiary/90 text-white font-semibold py-3.5 rounded-xl transition-colors"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    Registrar venda
+                  </button>
+                  <p className="text-foreground/40 text-xs text-center mt-3">
+                    A venda será registrada no sistema para acompanhamento interno.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleEnviarWhats}
+                    className="mt-6 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 rounded-xl transition-colors"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Enviar para o comercial
+                  </button>
+                  <p className="text-foreground/40 text-xs text-center mt-3">
+                    A simulação será enviada via WhatsApp para nosso time comercial.
+                  </p>
+                </>
+              )}
             </div>
           </aside>
         </div>
       </main>
+
+      {/* Modal Registrar venda (admin) */}
+      {saleOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => !savingSale && setSaleOpen(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-border overflow-hidden max-h-[90vh] flex flex-col"
+          >
+            <div className="flex items-center justify-between p-5 border-b border-border bg-muted">
+              <div>
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-tertiary" />
+                  Registrar venda
+                </h3>
+                <p className="text-foreground/60 text-sm">
+                  Preencha os dados complementares para concluir o registro.
+                </p>
+              </div>
+              <button
+                onClick={() => !savingSale && setSaleOpen(false)}
+                className="w-9 h-9 rounded-full hover:bg-background flex items-center justify-center text-foreground/60"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegistrarVenda} className="p-5 lg:p-6 space-y-4 overflow-y-auto">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    Nome fantasia *
+                  </label>
+                  <input
+                    type="text"
+                    value={saleForm.company_name}
+                    onChange={(e) => setSaleForm({ ...saleForm, company_name: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    CNPJ *
+                  </label>
+                  <input
+                    type="text"
+                    value={saleForm.cnpj}
+                    onChange={(e) => setSaleForm({ ...saleForm, cnpj: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    Nome do responsável *
+                  </label>
+                  <input
+                    type="text"
+                    value={saleForm.responsible_name}
+                    onChange={(e) => setSaleForm({ ...saleForm, responsible_name: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    E-mail do responsável *
+                  </label>
+                  <input
+                    type="email"
+                    value={saleForm.responsible_email}
+                    onChange={(e) => setSaleForm({ ...saleForm, responsible_email: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    Valor negociado (R$) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={saleForm.negotiated_value}
+                    onChange={(e) => setSaleForm({ ...saleForm, negotiated_value: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                  <p className="text-[11px] text-foreground/50 mt-1">
+                    Simulado: {currency(total)} — ajuste conforme a negociação.
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                    Data e hora da venda *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={saleForm.sale_date}
+                    onChange={(e) => setSaleForm({ ...saleForm, sale_date: e.target.value })}
+                    className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider">
+                  Observações da venda
+                </label>
+                <textarea
+                  value={saleForm.notes}
+                  onChange={(e) => setSaleForm({ ...saleForm, notes: e.target.value })}
+                  rows={3}
+                  placeholder="Itens negociados fora do simulador, condições especiais, etc."
+                  className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSaleOpen(false)}
+                  disabled={savingSale}
+                  className="flex-1 py-3 rounded-xl bg-muted border border-border text-foreground/80 hover:bg-muted/70 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingSale}
+                  className="flex-1 py-3 rounded-xl bg-tertiary hover:bg-tertiary/90 text-white font-semibold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                >
+                  {savingSale ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" /> Confirmar venda
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
