@@ -109,23 +109,16 @@ const ExpositorDashboard = () => {
             <h2 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
               <KeyRound className="w-4 h-4" /> Alterar senha
             </h2>
-            <p className="text-white/60 text-sm mb-4">Escolha uma nova senha para sua conta.</p>
-            <form onSubmit={handleChangePass} className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="password"
-                placeholder="Nova senha"
-                value={newPass}
-                onChange={(e) => setNewPass(e.target.value)}
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-accent/60 transition-all"
-              />
-              <button
-                type="submit"
-                disabled={changingPass}
-                className="px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-              >
-                {changingPass ? <Loader2 className="w-4 h-4 animate-spin" /> : "Alterar"}
-              </button>
-            </form>
+            <p className="text-white/60 text-sm mb-4">
+              Enviaremos um link para <span className="text-white">{profile?.email}</span> com instruções para redefinir sua senha.
+            </p>
+            <button
+              onClick={handleSendReset}
+              disabled={sendingReset}
+              className="px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {sendingReset ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Enviar e-mail</>}
+            </button>
           </section>
         </motion.div>
       </main>
