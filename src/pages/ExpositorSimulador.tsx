@@ -254,7 +254,7 @@ const ExpositorSimulador = () => {
                 {STANDS.map((s) => (
                   <div
                     key={s.id}
-                    className={`relative bg-background border border-border rounded-xl p-4 flex flex-col ring-2 ${s.ring}`}
+                    className={`relative bg-[hsl(210,20%,90%)] border border-foreground/25 rounded-xl p-4 flex flex-col ring-2 ${s.ring}`}
                   >
                     <div
                       className={`h-2.5 w-14 rounded-full bg-gradient-to-r ${s.color} mb-3 shadow-sm ring-1 ring-black/5`}
