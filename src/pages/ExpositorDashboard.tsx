@@ -39,21 +39,21 @@ const ExpositorDashboard = () => {
     navigate("/expositor/login", { replace: true });
   };
 
-  const handleChangePass = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPass.length < 6) {
-      toast({ title: "Senha muito curta", description: "Mínimo 6 caracteres.", variant: "destructive" });
+  const handleSendReset = async () => {
+    if (!profile?.email || profile.email === "-") {
+      toast({ title: "E-mail indisponível", variant: "destructive" });
       return;
     }
-    setChangingPass(true);
-    const { error } = await supabase.auth.updateUser({ password: newPass });
-    setChangingPass(false);
+    setSendingReset(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
+      redirectTo: `${window.location.origin}/expositor/reset-password`,
+    });
+    setSendingReset(false);
     if (error) {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
       return;
     }
-    setNewPass("");
-    toast({ title: "Senha alterada com sucesso!" });
+    toast({ title: "E-mail enviado!", description: "Confira sua caixa de entrada para redefinir a senha." });
   };
 
   if (loading) {
