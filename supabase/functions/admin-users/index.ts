@@ -48,9 +48,13 @@ Deno.serve(async (req) => {
       const items = await Promise.all(
         (roles ?? []).map(async (r) => {
           const { data } = await admin.auth.admin.getUserById(r.user_id);
+          const meta = (data.user?.user_metadata ?? {}) as Record<string, string>;
           return {
             id: r.user_id,
             email: data.user?.email ?? "",
+            name: meta.name ?? "",
+            phone: meta.phone ?? "",
+            cpf: meta.cpf ?? "",
             created_at: data.user?.created_at ?? r.created_at,
             last_sign_in_at: data.user?.last_sign_in_at ?? null,
           };
@@ -62,14 +66,18 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
 
     if (req.method === "POST") {
-      const { email, password } = body;
+      const { email, password, name, phone, cpf } = body;
       if (!email || !password || String(password).length < 6) {
         return json({ error: "E-mail e senha (mín. 6 caracteres) são obrigatórios" }, 400);
+      }
+      if (!name || !phone || !cpf) {
+        return json({ error: "Nome, celular e CPF são obrigatórios" }, 400);
       }
       const { data: created, error: createErr } = await admin.auth.admin.createUser({
         email,
         password,
         email_confirm: true,
+        user_metadata: { name, phone, cpf },
       });
       if (createErr) return json({ error: createErr.message }, 400);
       const { error: roleErr } = await admin
@@ -83,13 +91,21 @@ Deno.serve(async (req) => {
     }
 
     if (req.method === "PATCH") {
-      const { id, email, password } = body;
+      const { id, email, password, name, phone, cpf } = body;
       if (!id) return json({ error: "ID obrigatório" }, 400);
       const attrs: Record<string, unknown> = {};
       if (email) attrs.email = email;
       if (password) {
         if (String(password).length < 6) return json({ error: "Senha muito curta" }, 400);
         attrs.password = password;
+      }
+      const meta: Record<string, string> = {};
+      if (name !== undefined) meta.name = name;
+      if (phone !== undefined) meta.phone = phone;
+      if (cpf !== undefined) meta.cpf = cpf;
+      if (Object.keys(meta).length) {
+        const { data: existing } = await admin.auth.admin.getUserById(id);
+        attrs.user_metadata = { ...(existing.user?.user_metadata ?? {}), ...meta };
       }
       if (!Object.keys(attrs).length) return json({ error: "Nada para atualizar" }, 400);
       const { error } = await admin.auth.admin.updateUserById(id, attrs);
