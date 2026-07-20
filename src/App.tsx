@@ -9,6 +9,7 @@ import ExpositorLogin from "./pages/ExpositorLogin";
 import ExpositorResetPassword from "./pages/ExpositorResetPassword";
 import ExpositorDashboard from "./pages/ExpositorDashboard";
 import ExpositorSimulador from "./pages/ExpositorSimulador";
+import AdminVendas from "./pages/AdminVendas";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
