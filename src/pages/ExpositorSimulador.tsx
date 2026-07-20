@@ -33,9 +33,9 @@ const STANDS = [
     id: "prata",
     name: "Prata",
     price: 12500,
-    color: "from-slate-600 to-slate-300",
-    ring: "ring-slate-500/50",
-    dot: "bg-slate-500",
+    color: "from-slate-800 to-slate-500",
+    ring: "ring-slate-600/50",
+    dot: "bg-slate-600",
     desc: "Posição intermediária, alto fluxo de público.",
   },
   {
@@ -254,7 +254,7 @@ const ExpositorSimulador = () => {
                 {STANDS.map((s) => (
                   <div
                     key={s.id}
-                    className={`relative bg-[hsl(210,20%,90%)] border border-foreground/25 rounded-xl p-4 flex flex-col ring-2 ${s.ring}`}
+                    className={`relative bg-white border border-foreground/25 rounded-xl p-4 flex flex-col ring-2 ${s.ring}`}
                   >
                     <div
                       className={`h-2.5 w-14 rounded-full bg-gradient-to-r ${s.color} mb-3 shadow-sm ring-1 ring-black/5`}
