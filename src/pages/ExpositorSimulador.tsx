@@ -209,7 +209,7 @@ const ExpositorSimulador = () => {
 
       <main className="container mx-auto px-4 lg:px-8 py-8 lg:py-12">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <span className="text-xs uppercase tracking-wider text-accent font-semibold">
+          <span className="text-xs uppercase tracking-wider text-primary font-semibold">
             Simulador de Stands
           </span>
           <h1 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-2">
@@ -225,9 +225,9 @@ const ExpositorSimulador = () => {
           {/* Left column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Mapa */}
-            <section className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm">
+            <section className="bg-muted border border-border rounded-2xl overflow-hidden shadow-sm">
               <div className="flex items-center gap-2 p-5 border-b border-border">
-                <MapPin className="w-4 h-4 text-accent" />
+                <MapPin className="w-4 h-4 text-primary" />
                 <h2 className="text-foreground font-semibold">Mapa do evento</h2>
               </div>
               <div className="p-4">
@@ -243,7 +243,7 @@ const ExpositorSimulador = () => {
             </section>
 
             {/* Stands */}
-            <section className="bg-white border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
+            <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
               <h2 className="text-foreground font-semibold mb-1">
                 Seleção de stands
               </h2>
@@ -254,16 +254,16 @@ const ExpositorSimulador = () => {
                 {STANDS.map((s) => (
                   <div
                     key={s.id}
-                    className={`relative bg-muted/40 border border-border rounded-xl p-4 flex flex-col ring-1 ${s.ring}`}
+                    className={`relative bg-background border border-border rounded-xl p-4 flex flex-col ring-2 ${s.ring}`}
                   >
                     <div
-                      className={`h-1.5 w-10 rounded-full bg-gradient-to-r ${s.color} mb-3`}
+                      className={`h-2.5 w-14 rounded-full bg-gradient-to-r ${s.color} mb-3 shadow-sm ring-1 ring-black/5`}
                     />
                     <div className="text-foreground font-semibold text-lg">
                       Stand {s.name}
                     </div>
                     <div className="text-foreground/50 text-xs mb-3">{s.desc}</div>
-                    <div className="text-accent font-semibold mb-4">
+                    <div className="text-foreground font-semibold mb-4">
                       {currency(s.price)}
                     </div>
                     <div className="mt-auto flex items-center justify-between bg-white border border-border rounded-full p-1">
