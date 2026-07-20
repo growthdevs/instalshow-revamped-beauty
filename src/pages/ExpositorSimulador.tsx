@@ -562,7 +562,7 @@ const ExpositorSimulador = () => {
                 <>
                   <button
                     onClick={openSaleModal}
-                    className="mt-6 w-full flex items-center justify-center gap-2 bg-tertiary hover:bg-tertiary/90 text-white font-semibold py-3.5 rounded-xl transition-colors"
+                    className="mt-6 w-full flex items-center justify-center gap-2 bg-success hover:bg-success/90 text-white font-semibold py-3.5 rounded-xl transition-colors"
                   >
                     <CheckCircle2 className="w-5 h-5" />
                     Registrar venda
@@ -726,7 +726,7 @@ const ExpositorSimulador = () => {
                 <button
                   type="submit"
                   disabled={savingSale}
-                  className="flex-1 py-3 rounded-xl bg-tertiary hover:bg-tertiary/90 text-white font-semibold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-xl bg-success hover:bg-success/90 text-white font-semibold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
                 >
                   {savingSale ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
