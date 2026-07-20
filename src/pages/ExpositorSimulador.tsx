@@ -1,0 +1,439 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  LogOut,
+  Minus,
+  Plus,
+  MapPin,
+  Sparkles,
+  MessageCircle,
+  Loader2,
+  Gift,
+  LayoutDashboard,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import logoInstalshow from "@/assets/logo-instalshow.svg";
+import mapaEvento from "@/assets/mapa-evento.jpg";
+
+const WHATSAPP_NUMBER = "5511963830660";
+
+const STANDS = [
+  {
+    id: "bronze",
+    name: "Bronze",
+    price: 8500,
+    color: "from-amber-700 to-amber-500",
+    ring: "ring-amber-600/40",
+    dot: "bg-amber-600",
+    desc: "Localização periférica, ótimo custo-benefício.",
+  },
+  {
+    id: "prata",
+    name: "Prata",
+    price: 12500,
+    color: "from-slate-400 to-slate-200",
+    ring: "ring-slate-400/40",
+    dot: "bg-slate-400",
+    desc: "Posição intermediária, alto fluxo de público.",
+  },
+  {
+    id: "ouro",
+    name: "Ouro",
+    price: 18500,
+    color: "from-yellow-500 to-yellow-300",
+    ring: "ring-yellow-500/50",
+    dot: "bg-yellow-500",
+    desc: "Área nobre, ao centro e próxima ao palco.",
+  },
+] as const;
+
+const EVENTOS_ADICIONAIS = [
+  {
+    id: "palestra-1",
+    name: "Palestra Patrocinada — Auditório Principal",
+    price: 6500,
+    desc: "40 minutos no palco principal, com divulgação na grade oficial.",
+  },
+  {
+    id: "palestra-2",
+    name: "Palestra Técnica — Sala de Workshops",
+    price: 3800,
+    desc: "30 minutos de conteúdo técnico em sala reservada.",
+  },
+] as const;
+
+const DESCONTO_PRIMEIRA_PCT = 10;
+
+type Profile = { company_name: string; cnpj: string; email: string };
+
+const currency = (n: number) =>
+  n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+const ExpositorSimulador = () => {
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [qtd, setQtd] = useState<Record<string, number>>({
+    bronze: 0,
+    prata: 0,
+    ouro: 0,
+  });
+  const [eventos, setEventos] = useState<Record<string, boolean>>({});
+  const [primeira, setPrimeira] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) {
+        navigate("/expositor/login", { replace: true });
+        return;
+      }
+      const { data } = await supabase
+        .from("expositor_profiles")
+        .select("company_name, cnpj, email")
+        .eq("id", userRes.user.id)
+        .maybeSingle();
+      setProfile(
+        data ?? { company_name: "-", cnpj: "-", email: userRes.user.email ?? "-" },
+      );
+      setLoading(false);
+    };
+    init();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/expositor/login", { replace: true });
+  };
+
+  const subtotalStands = useMemo(
+    () => STANDS.reduce((sum, s) => sum + s.price * (qtd[s.id] || 0), 0),
+    [qtd],
+  );
+  const subtotalEventos = useMemo(
+    () =>
+      EVENTOS_ADICIONAIS.filter((e) => eventos[e.id]).reduce(
+        (sum, e) => sum + e.price,
+        0,
+      ),
+    [eventos],
+  );
+  const subtotal = subtotalStands + subtotalEventos;
+  const descontoValor = primeira ? (subtotal * DESCONTO_PRIMEIRA_PCT) / 100 : 0;
+  const total = subtotal - descontoValor;
+  const totalStands = qtd.bronze + qtd.prata + qtd.ouro;
+
+  const inc = (id: string) => setQtd((q) => ({ ...q, [id]: (q[id] || 0) + 1 }));
+  const dec = (id: string) =>
+    setQtd((q) => ({ ...q, [id]: Math.max(0, (q[id] || 0) - 1) }));
+
+  const handleEnviarWhats = () => {
+    if (totalStands === 0) {
+      toast({
+        title: "Selecione ao menos 1 stand",
+        description: "Adicione a quantidade desejada para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const linhas: string[] = [];
+    linhas.push("*Nova simulação — Instal Show 2026*");
+    linhas.push("");
+    linhas.push(`*Empresa:* ${profile?.company_name ?? "-"}`);
+    linhas.push(`*CNPJ:* ${profile?.cnpj ?? "-"}`);
+    linhas.push(`*E-mail:* ${profile?.email ?? "-"}`);
+    linhas.push("");
+    linhas.push("*Stands selecionados:*");
+    STANDS.forEach((s) => {
+      const q = qtd[s.id] || 0;
+      if (q > 0)
+        linhas.push(`• ${q}x Stand ${s.name} — ${currency(s.price * q)}`);
+    });
+
+    const evSel = EVENTOS_ADICIONAIS.filter((e) => eventos[e.id]);
+    if (evSel.length) {
+      linhas.push("");
+      linhas.push("*Eventos adicionais:*");
+      evSel.forEach((e) => linhas.push(`• ${e.name} — ${currency(e.price)}`));
+    }
+
+    linhas.push("");
+    linhas.push(`*Subtotal:* ${currency(subtotal)}`);
+    if (primeira)
+      linhas.push(
+        `*Desconto 1ª participação (${DESCONTO_PRIMEIRA_PCT}%):* -${currency(descontoValor)}`,
+      );
+    linhas.push(`*Total estimado:* ${currency(total)}`);
+    linhas.push("");
+    linhas.push("Gostaria de dar continuidade ao atendimento comercial.");
+
+    const msg = encodeURIComponent(linhas.join("\n"));
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-navy-dark flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-navy-dark">
+      <header className="border-b border-white/10 bg-navy-dark/80 backdrop-blur-xl sticky top-0 z-40">
+        <div className="container mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
+          <Link to="/">
+            <img src={logoInstalshow} alt="Instal Show" className="h-9 w-auto" />
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/expositor/dashboard"
+              className="hidden sm:flex items-center gap-2 text-sm text-white/70 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors"
+            >
+              <LayoutDashboard className="w-4 h-4" /> Meus dados
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-sm text-white/70 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors"
+            >
+              <LogOut className="w-4 h-4" /> Sair
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 lg:px-8 py-8 lg:py-12">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <span className="text-xs uppercase tracking-wider text-accent font-semibold">
+            Simulador de Stands
+          </span>
+          <h1 className="text-3xl lg:text-4xl font-bold text-white mt-2 mb-2">
+            Monte sua participação, {profile?.company_name}
+          </h1>
+          <p className="text-white/60 mb-8 max-w-2xl">
+            Escolha seus stands e eventos adicionais. Ao final, envie a
+            simulação diretamente para nossa equipe comercial via WhatsApp.
+          </p>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Left column */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Mapa */}
+            <section className="bg-white/[0.04] border border-white/10 rounded-2xl overflow-hidden">
+              <div className="flex items-center gap-2 p-5 border-b border-white/10">
+                <MapPin className="w-4 h-4 text-accent" />
+                <h2 className="text-white font-semibold">Mapa do evento</h2>
+              </div>
+              <div className="p-4">
+                <img
+                  src={mapaEvento}
+                  alt="Mapa do evento com localização dos stands"
+                  loading="lazy"
+                  width={1536}
+                  height={1024}
+                  className="w-full h-auto rounded-xl border border-white/10"
+                />
+              </div>
+            </section>
+
+            {/* Stands */}
+            <section className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 lg:p-6">
+              <h2 className="text-white font-semibold mb-1">
+                Seleção de stands
+              </h2>
+              <p className="text-white/50 text-sm mb-5">
+                Tamanhos e disposição finais são alinhados pela equipe comercial.
+              </p>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {STANDS.map((s) => (
+                  <div
+                    key={s.id}
+                    className={`relative bg-white/[0.03] border border-white/10 rounded-xl p-4 flex flex-col ring-1 ${s.ring}`}
+                  >
+                    <div
+                      className={`h-1.5 w-10 rounded-full bg-gradient-to-r ${s.color} mb-3`}
+                    />
+                    <div className="text-white font-semibold text-lg">
+                      Stand {s.name}
+                    </div>
+                    <div className="text-white/50 text-xs mb-3">{s.desc}</div>
+                    <div className="text-accent font-semibold mb-4">
+                      {currency(s.price)}
+                    </div>
+                    <div className="mt-auto flex items-center justify-between bg-white/5 rounded-full p-1">
+                      <button
+                        onClick={() => dec(s.id)}
+                        className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                        aria-label={`Diminuir ${s.name}`}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="text-white font-semibold w-6 text-center">
+                        {qtd[s.id] || 0}
+                      </span>
+                      <button
+                        onClick={() => inc(s.id)}
+                        className="w-8 h-8 rounded-full bg-accent hover:bg-accent/90 text-white flex items-center justify-center transition-colors"
+                        aria-label={`Aumentar ${s.name}`}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Eventos adicionais */}
+            <section className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 lg:p-6">
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <h2 className="text-white font-semibold">Eventos adicionais</h2>
+              </div>
+              <p className="text-white/50 text-sm mb-5">
+                Amplie sua visibilidade com palestras dentro do evento.
+              </p>
+              <div className="space-y-3">
+                {EVENTOS_ADICIONAIS.map((e) => {
+                  const active = !!eventos[e.id];
+                  return (
+                    <label
+                      key={e.id}
+                      className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                        active
+                          ? "bg-accent/10 border-accent/40"
+                          : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={active}
+                        onChange={(ev) =>
+                          setEventos((s) => ({ ...s, [e.id]: ev.target.checked }))
+                        }
+                        className="w-5 h-5 accent-accent"
+                      />
+                      <div className="flex-1">
+                        <div className="text-white font-medium">{e.name}</div>
+                        <div className="text-white/50 text-sm">{e.desc}</div>
+                      </div>
+                      <div className="text-accent font-semibold whitespace-nowrap">
+                        {currency(e.price)}
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Desconto */}
+            <section className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 lg:p-6">
+              <label
+                className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                  primeira
+                    ? "bg-accent/10 border-accent/40"
+                    : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={primeira}
+                  onChange={(e) => setPrimeira(e.target.checked)}
+                  className="w-5 h-5 accent-accent"
+                />
+                <Gift className="w-5 h-5 text-accent" />
+                <div className="flex-1">
+                  <div className="text-white font-medium">
+                    É a 1ª participação da sua empresa no Instal Show?
+                  </div>
+                  <div className="text-white/50 text-sm">
+                    Aplica {DESCONTO_PRIMEIRA_PCT}% de desconto automático sobre
+                    o total. Sujeito a validação da equipe comercial.
+                  </div>
+                </div>
+              </label>
+            </section>
+          </div>
+
+          {/* Right column — Resumo */}
+          <aside className="lg:col-span-1">
+            <div className="lg:sticky lg:top-24 bg-white/[0.04] border border-white/10 rounded-2xl p-6">
+              <h2 className="text-white font-semibold mb-4">
+                Resumo da simulação
+              </h2>
+
+              <div className="space-y-3 mb-5">
+                {STANDS.map((s) => {
+                  const q = qtd[s.id] || 0;
+                  if (!q) return null;
+                  return (
+                    <div key={s.id} className="flex justify-between text-sm">
+                      <span className="text-white/70 flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${s.dot}`} />
+                        {q}x Stand {s.name}
+                      </span>
+                      <span className="text-white font-medium">
+                        {currency(s.price * q)}
+                      </span>
+                    </div>
+                  );
+                })}
+                {EVENTOS_ADICIONAIS.filter((e) => eventos[e.id]).map((e) => (
+                  <div key={e.id} className="flex justify-between text-sm">
+                    <span className="text-white/70 truncate pr-2">
+                      {e.name}
+                    </span>
+                    <span className="text-white font-medium whitespace-nowrap">
+                      {currency(e.price)}
+                    </span>
+                  </div>
+                ))}
+                {totalStands === 0 && !subtotalEventos && (
+                  <p className="text-white/40 text-sm">
+                    Nenhum item selecionado ainda.
+                  </p>
+                )}
+              </div>
+
+              <div className="border-t border-white/10 pt-4 space-y-2 text-sm">
+                <div className="flex justify-between text-white/70">
+                  <span>Subtotal</span>
+                  <span>{currency(subtotal)}</span>
+                </div>
+                {primeira && (
+                  <div className="flex justify-between text-accent">
+                    <span>Desconto 1ª participação</span>
+                    <span>-{currency(descontoValor)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-white font-bold text-lg pt-2">
+                  <span>Total</span>
+                  <span>{currency(total)}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleEnviarWhats}
+                className="mt-6 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3.5 rounded-xl transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Enviar para o comercial
+              </button>
+              <p className="text-white/40 text-xs text-center mt-3">
+                A simulação será enviada via WhatsApp para nosso time comercial.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default ExpositorSimulador;
