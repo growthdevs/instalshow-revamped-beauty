@@ -33,7 +33,7 @@ const STANDS = [
     id: "prata",
     name: "Prata",
     price: 12500,
-    color: "from-slate-400 to-slate-200",
+    color: "from-slate-500 to-slate-300",
     ring: "ring-slate-400/40",
     dot: "bg-slate-400",
     desc: "Posição intermediária, alto fluxo de público.",
@@ -177,15 +177,15 @@ const ExpositorSimulador = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-navy-dark flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-accent animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-navy-dark">
-      <header className="border-b border-white/10 bg-navy-dark/80 backdrop-blur-xl sticky top-0 z-40">
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-white/90 backdrop-blur-xl sticky top-0 z-40 shadow-sm">
         <div className="container mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/">
             <img src={logoInstalshow} alt="Instal Show" className="h-9 w-auto" />
@@ -193,13 +193,13 @@ const ExpositorSimulador = () => {
           <div className="flex items-center gap-2">
             <Link
               to="/expositor/dashboard"
-              className="hidden sm:flex items-center gap-2 text-sm text-white/70 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors"
+              className="hidden sm:flex items-center gap-2 text-sm text-foreground/70 hover:text-primary px-4 py-2 rounded-full hover:bg-muted transition-colors"
             >
               <LayoutDashboard className="w-4 h-4" /> Meus dados
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-sm text-white/70 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors"
+              className="flex items-center gap-2 text-sm text-foreground/70 hover:text-primary px-4 py-2 rounded-full hover:bg-muted transition-colors"
             >
               <LogOut className="w-4 h-4" /> Sair
             </button>
@@ -212,10 +212,10 @@ const ExpositorSimulador = () => {
           <span className="text-xs uppercase tracking-wider text-accent font-semibold">
             Simulador de Stands
           </span>
-          <h1 className="text-3xl lg:text-4xl font-bold text-white mt-2 mb-2">
+          <h1 className="text-3xl lg:text-4xl font-bold text-foreground mt-2 mb-2">
             Monte sua participação, {profile?.company_name}
           </h1>
-          <p className="text-white/60 mb-8 max-w-2xl">
+          <p className="text-foreground/60 mb-8 max-w-2xl">
             Escolha seus stands e eventos adicionais. Ao final, envie a
             simulação diretamente para nossa equipe comercial via WhatsApp.
           </p>
@@ -225,10 +225,10 @@ const ExpositorSimulador = () => {
           {/* Left column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Mapa */}
-            <section className="bg-white/[0.04] border border-white/10 rounded-2xl overflow-hidden">
-              <div className="flex items-center gap-2 p-5 border-b border-white/10">
+            <section className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm">
+              <div className="flex items-center gap-2 p-5 border-b border-border">
                 <MapPin className="w-4 h-4 text-accent" />
-                <h2 className="text-white font-semibold">Mapa do evento</h2>
+                <h2 className="text-foreground font-semibold">Mapa do evento</h2>
               </div>
               <div className="p-4">
                 <img
@@ -237,49 +237,49 @@ const ExpositorSimulador = () => {
                   loading="lazy"
                   width={1536}
                   height={1024}
-                  className="w-full h-auto rounded-xl border border-white/10"
+                  className="w-full h-auto rounded-xl border border-border"
                 />
               </div>
             </section>
 
             {/* Stands */}
-            <section className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 lg:p-6">
-              <h2 className="text-white font-semibold mb-1">
+            <section className="bg-white border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
+              <h2 className="text-foreground font-semibold mb-1">
                 Seleção de stands
               </h2>
-              <p className="text-white/50 text-sm mb-5">
+              <p className="text-foreground/50 text-sm mb-5">
                 Tamanhos e disposição finais são alinhados pela equipe comercial.
               </p>
               <div className="grid sm:grid-cols-3 gap-4">
                 {STANDS.map((s) => (
                   <div
                     key={s.id}
-                    className={`relative bg-white/[0.03] border border-white/10 rounded-xl p-4 flex flex-col ring-1 ${s.ring}`}
+                    className={`relative bg-muted/40 border border-border rounded-xl p-4 flex flex-col ring-1 ${s.ring}`}
                   >
                     <div
                       className={`h-1.5 w-10 rounded-full bg-gradient-to-r ${s.color} mb-3`}
                     />
-                    <div className="text-white font-semibold text-lg">
+                    <div className="text-foreground font-semibold text-lg">
                       Stand {s.name}
                     </div>
-                    <div className="text-white/50 text-xs mb-3">{s.desc}</div>
+                    <div className="text-foreground/50 text-xs mb-3">{s.desc}</div>
                     <div className="text-accent font-semibold mb-4">
                       {currency(s.price)}
                     </div>
-                    <div className="mt-auto flex items-center justify-between bg-white/5 rounded-full p-1">
+                    <div className="mt-auto flex items-center justify-between bg-white border border-border rounded-full p-1">
                       <button
                         onClick={() => dec(s.id)}
-                        className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-foreground flex items-center justify-center transition-colors"
                         aria-label={`Diminuir ${s.name}`}
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="text-white font-semibold w-6 text-center">
+                      <span className="text-foreground font-semibold w-6 text-center">
                         {qtd[s.id] || 0}
                       </span>
                       <button
                         onClick={() => inc(s.id)}
-                        className="w-8 h-8 rounded-full bg-accent hover:bg-accent/90 text-white flex items-center justify-center transition-colors"
+                        className="w-8 h-8 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center transition-colors"
                         aria-label={`Aumentar ${s.name}`}
                       >
                         <Plus className="w-4 h-4" />
@@ -291,12 +291,12 @@ const ExpositorSimulador = () => {
             </section>
 
             {/* Eventos adicionais */}
-            <section className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 lg:p-6">
+            <section className="bg-white border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles className="w-4 h-4 text-accent" />
-                <h2 className="text-white font-semibold">Eventos adicionais</h2>
+                <h2 className="text-foreground font-semibold">Eventos adicionais</h2>
               </div>
-              <p className="text-white/50 text-sm mb-5">
+              <p className="text-foreground/50 text-sm mb-5">
                 Amplie sua visibilidade com palestras dentro do evento.
               </p>
               <div className="space-y-3">
@@ -307,8 +307,8 @@ const ExpositorSimulador = () => {
                       key={e.id}
                       className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
                         active
-                          ? "bg-accent/10 border-accent/40"
-                          : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                          ? "bg-accent/5 border-accent/40"
+                          : "bg-muted/30 border-border hover:border-foreground/20"
                       }`}
                     >
                       <input
@@ -320,8 +320,8 @@ const ExpositorSimulador = () => {
                         className="w-5 h-5 accent-accent"
                       />
                       <div className="flex-1">
-                        <div className="text-white font-medium">{e.name}</div>
-                        <div className="text-white/50 text-sm">{e.desc}</div>
+                        <div className="text-foreground font-medium">{e.name}</div>
+                        <div className="text-foreground/50 text-sm">{e.desc}</div>
                       </div>
                       <div className="text-accent font-semibold whitespace-nowrap">
                         {currency(e.price)}
@@ -333,12 +333,12 @@ const ExpositorSimulador = () => {
             </section>
 
             {/* Desconto */}
-            <section className="bg-white/[0.04] border border-white/10 rounded-2xl p-5 lg:p-6">
+            <section className="bg-white border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
               <label
                 className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
                   primeira
-                    ? "bg-accent/10 border-accent/40"
-                    : "bg-white/[0.03] border-white/10 hover:border-white/20"
+                    ? "bg-accent/5 border-accent/40"
+                    : "bg-muted/30 border-border hover:border-foreground/20"
                 }`}
               >
                 <input
@@ -349,10 +349,10 @@ const ExpositorSimulador = () => {
                 />
                 <Gift className="w-5 h-5 text-accent" />
                 <div className="flex-1">
-                  <div className="text-white font-medium">
+                  <div className="text-foreground font-medium">
                     É a 1ª participação da sua empresa no Instal Show?
                   </div>
-                  <div className="text-white/50 text-sm">
+                  <div className="text-foreground/50 text-sm">
                     Aplica {DESCONTO_PRIMEIRA_PCT}% de desconto automático sobre
                     o total. Sujeito a validação da equipe comercial.
                   </div>
@@ -363,8 +363,8 @@ const ExpositorSimulador = () => {
 
           {/* Right column — Resumo */}
           <aside className="lg:col-span-1">
-            <div className="lg:sticky lg:top-24 bg-white/[0.04] border border-white/10 rounded-2xl p-6">
-              <h2 className="text-white font-semibold mb-4">
+            <div className="lg:sticky lg:top-24 bg-white border border-border rounded-2xl p-6 shadow-sm">
+              <h2 className="text-foreground font-semibold mb-4">
                 Resumo da simulação
               </h2>
 
@@ -374,11 +374,11 @@ const ExpositorSimulador = () => {
                   if (!q) return null;
                   return (
                     <div key={s.id} className="flex justify-between text-sm">
-                      <span className="text-white/70 flex items-center gap-2">
+                      <span className="text-foreground/70 flex items-center gap-2">
                         <span className={`w-2 h-2 rounded-full ${s.dot}`} />
                         {q}x Stand {s.name}
                       </span>
-                      <span className="text-white font-medium">
+                      <span className="text-foreground font-medium">
                         {currency(s.price * q)}
                       </span>
                     </div>
@@ -386,23 +386,23 @@ const ExpositorSimulador = () => {
                 })}
                 {EVENTOS_ADICIONAIS.filter((e) => eventos[e.id]).map((e) => (
                   <div key={e.id} className="flex justify-between text-sm">
-                    <span className="text-white/70 truncate pr-2">
+                    <span className="text-foreground/70 truncate pr-2">
                       {e.name}
                     </span>
-                    <span className="text-white font-medium whitespace-nowrap">
+                    <span className="text-foreground font-medium whitespace-nowrap">
                       {currency(e.price)}
                     </span>
                   </div>
                 ))}
                 {totalStands === 0 && !subtotalEventos && (
-                  <p className="text-white/40 text-sm">
+                  <p className="text-foreground/40 text-sm">
                     Nenhum item selecionado ainda.
                   </p>
                 )}
               </div>
 
-              <div className="border-t border-white/10 pt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-white/70">
+              <div className="border-t border-border pt-4 space-y-2 text-sm">
+                <div className="flex justify-between text-foreground/70">
                   <span>Subtotal</span>
                   <span>{currency(subtotal)}</span>
                 </div>
@@ -412,7 +412,7 @@ const ExpositorSimulador = () => {
                     <span>-{currency(descontoValor)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-white font-bold text-lg pt-2">
+                <div className="flex justify-between text-foreground font-bold text-lg pt-2">
                   <span>Total</span>
                   <span>{currency(total)}</span>
                 </div>
@@ -425,7 +425,7 @@ const ExpositorSimulador = () => {
                 <MessageCircle className="w-5 h-5" />
                 Enviar para o comercial
               </button>
-              <p className="text-white/40 text-xs text-center mt-3">
+              <p className="text-foreground/40 text-xs text-center mt-3">
                 A simulação será enviada via WhatsApp para nosso time comercial.
               </p>
             </div>
