@@ -114,13 +114,28 @@ const ExpositorResetPassword = () => {
               <h1 className="text-2xl font-bold text-white mb-2">Senha alterada!</h1>
               <p className="text-white/60">Redirecionando para o login...</p>
             </div>
+          ) : status === "invalid" ? (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 rounded-full bg-tertiary/20 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-8 h-8 text-tertiary" />
+              </div>
+              <h1 className="text-2xl font-bold text-white mb-2">Link inválido</h1>
+              <p className="text-white/60 mb-6">{errorMsg}</p>
+              <Link
+                to="/expositor/login"
+                className="inline-flex items-center justify-center w-full py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent/90 transition-all"
+              >
+                Solicitar novo link
+              </Link>
+            </div>
           ) : (
             <>
               <h1 className="text-3xl font-bold text-white mb-2">Nova senha</h1>
               <p className="text-white/60 mb-8">Defina uma nova senha para acessar sua conta.</p>
-              {!ready && (
-                <p className="text-sm text-white/50 mb-4">
-                  Aguardando link de recuperação... Certifique-se de abrir esta página pelo link enviado no e-mail.
+              {status === "checking" && (
+                <p className="text-sm text-white/50 mb-4 flex items-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Validando link de recuperação...
                 </p>
               )}
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -148,7 +163,7 @@ const ExpositorResetPassword = () => {
                 </div>
                 <button
                   type="submit"
-                  disabled={loading || !ready}
+                  disabled={loading || status !== "ready"}
                   className="w-full py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent/90 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
                 >
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Alterar senha"}
