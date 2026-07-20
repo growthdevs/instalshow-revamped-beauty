@@ -98,6 +98,8 @@ const ExpositorLogin = () => {
         emailRedirectTo: `${window.location.origin}/expositor/simulador`,
         data: {
           company_name: parsed.data.company_name,
+          responsible_name: parsed.data.responsible_name,
+          phone: parsed.data.phone,
           cnpj: parsed.data.cnpj.replace(/\D/g, ""),
         },
       },
