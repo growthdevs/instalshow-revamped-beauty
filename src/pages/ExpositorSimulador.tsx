@@ -363,7 +363,7 @@ const ExpositorSimulador = () => {
 
           {/* Right column — Resumo */}
           <aside className="lg:col-span-1">
-            <div className="lg:sticky lg:top-24 bg-white border border-border rounded-2xl p-6 shadow-sm">
+            <div className="lg:sticky lg:top-24 bg-muted border border-border rounded-2xl p-6 shadow-sm">
               <h2 className="text-foreground font-semibold mb-4">
                 Resumo da simulação
               </h2>
@@ -375,7 +375,7 @@ const ExpositorSimulador = () => {
                   return (
                     <div key={s.id} className="flex justify-between text-sm">
                       <span className="text-foreground/70 flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${s.dot}`} />
+                        <span className={`w-2.5 h-2.5 rounded-full ${s.dot} ring-1 ring-black/10`} />
                         {q}x Stand {s.name}
                       </span>
                       <span className="text-foreground font-medium">
@@ -407,12 +407,12 @@ const ExpositorSimulador = () => {
                   <span>{currency(subtotal)}</span>
                 </div>
                 {primeira && (
-                  <div className="flex justify-between text-accent">
+                  <div className="flex justify-between text-success">
                     <span>Desconto 1ª participação</span>
                     <span>-{currency(descontoValor)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-foreground font-bold text-lg pt-2">
+                <div className="flex justify-between text-primary font-bold text-lg pt-2">
                   <span>Total</span>
                   <span>{currency(total)}</span>
                 </div>
