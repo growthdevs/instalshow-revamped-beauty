@@ -33,9 +33,9 @@ const STANDS = [
     id: "prata",
     name: "Prata",
     price: 12500,
-    color: "from-slate-500 to-slate-300",
-    ring: "ring-slate-400/40",
-    dot: "bg-slate-400",
+    color: "from-slate-600 to-slate-300",
+    ring: "ring-slate-500/50",
+    dot: "bg-slate-500",
     desc: "Posição intermediária, alto fluxo de público.",
   },
   {
@@ -185,7 +185,7 @@ const ExpositorSimulador = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-white/90 backdrop-blur-xl sticky top-0 z-40 shadow-sm">
+      <header className="border-b border-white/10 bg-navy-dark/95 backdrop-blur-xl sticky top-0 z-40 shadow-lg">
         <div className="container mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/">
             <img src={logoInstalshow} alt="Instal Show" className="h-9 w-auto" />
@@ -193,13 +193,13 @@ const ExpositorSimulador = () => {
           <div className="flex items-center gap-2">
             <Link
               to="/expositor/dashboard"
-              className="hidden sm:flex items-center gap-2 text-sm text-foreground/70 hover:text-primary px-4 py-2 rounded-full hover:bg-muted transition-colors"
+              className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
             >
               <LayoutDashboard className="w-4 h-4" /> Meus dados
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-sm text-foreground/70 hover:text-primary px-4 py-2 rounded-full hover:bg-muted transition-colors"
+              className="flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
             >
               <LogOut className="w-4 h-4" /> Sair
             </button>
