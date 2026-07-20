@@ -4,14 +4,28 @@ import {
   ArrowLeft,
   ArrowUpDown,
   Download,
+  Eye,
   Loader2,
   LogOut,
+  Save,
   Search,
   ShieldCheck,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import logoInstalshow from "@/assets/logo-instalshow.svg";
+
+type SimStand = { id: string; name: string; quantity: number; unit_price: number };
+type SimEvento = { id: string; name: string; price: number };
+type SimulationData = {
+  stands?: SimStand[];
+  eventos?: SimEvento[];
+  first_participation_discount?: number;
+  subtotal?: number;
+  discount_value?: number;
+  simulated_total?: number;
+};
 
 type Sale = {
   id: string;
@@ -23,6 +37,7 @@ type Sale = {
   notes: string | null;
   sale_date: string;
   created_at: string;
+  simulation_data: SimulationData | null;
 };
 
 type SortKey = "sale_date" | "negotiated_value";
@@ -48,6 +63,10 @@ const AdminVendas = () => {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
 
+  const [detailSale, setDetailSale] = useState<Sale | null>(null);
+  const [negotiatedInput, setNegotiatedInput] = useState("");
+  const [savingNegotiated, setSavingNegotiated] = useState(false);
+
   useEffect(() => {
     (async () => {
       const { data: sess } = await supabase.auth.getSession();
@@ -66,12 +85,12 @@ const AdminVendas = () => {
       }
       const { data, error } = await supabase
         .from("sales")
-        .select("id, company_name, cnpj, responsible_name, responsible_email, negotiated_value, notes, sale_date, created_at")
+        .select("id, company_name, cnpj, responsible_name, responsible_email, negotiated_value, notes, sale_date, created_at, simulation_data")
         .order("sale_date", { ascending: false });
       if (error) {
         toast({ title: "Erro ao carregar vendas", description: error.message, variant: "destructive" });
       } else {
-        setSales((data as Sale[]) ?? []);
+        setSales((data as unknown as Sale[]) ?? []);
       }
       setLoading(false);
     })();
@@ -109,13 +128,45 @@ const AdminVendas = () => {
     else { setSortKey(key); setSortDir("desc"); }
   };
 
+  const openDetails = (s: Sale) => {
+    setDetailSale(s);
+    setNegotiatedInput(String(s.negotiated_value).replace(".", ","));
+  };
+
+  const closeDetails = () => {
+    setDetailSale(null);
+    setNegotiatedInput("");
+  };
+
+  const handleSaveNegotiated = async () => {
+    if (!detailSale) return;
+    const value = parseFloat(negotiatedInput.replace(",", "."));
+    if (isNaN(value) || value <= 0) {
+      toast({ title: "Valor inválido", description: "Informe um valor negociado maior que zero.", variant: "destructive" });
+      return;
+    }
+    setSavingNegotiated(true);
+    const { error } = await supabase
+      .from("sales")
+      .update({ negotiated_value: value })
+      .eq("id", detailSale.id);
+    setSavingNegotiated(false);
+    if (error) {
+      toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+      return;
+    }
+    setSales((list) => list.map((x) => (x.id === detailSale.id ? { ...x, negotiated_value: value } : x)));
+    setDetailSale((s) => (s ? { ...s, negotiated_value: value } : s));
+    toast({ title: "Valor negociado atualizado" });
+  };
+
   const exportCSV = () => {
     if (!filtered.length) {
       toast({ title: "Nada para exportar", description: "Ajuste os filtros e tente novamente." });
       return;
     }
     const headers = [
-      "Data da venda", "Empresa", "CNPJ", "Responsável", "E-mail", "Valor negociado", "Observações", "Registrado em",
+      "Data da venda", "Empresa", "CNPJ", "Responsável", "E-mail", "Valor negociado", "Detalhes da venda", "Registrado em",
     ];
     const rows = filtered.map((s) => [
       fmtDate(s.sale_date),
@@ -150,6 +201,14 @@ const AdminVendas = () => {
       </div>
     );
   }
+
+  const sim = detailSale?.simulation_data ?? null;
+  const simStands = sim?.stands ?? [];
+  const simEventos = sim?.eventos ?? [];
+  const simSubtotal = sim?.subtotal ?? 0;
+  const simDiscountPct = sim?.first_participation_discount ?? 0;
+  const simDiscountValue = sim?.discount_value ?? 0;
+  const simTotal = sim?.simulated_total ?? 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -234,11 +293,12 @@ const AdminVendas = () => {
                       {sortKey === "negotiated_value" && <span className="text-xs text-muted-foreground">({sortDir})</span>}
                     </button>
                   </th>
+                  <th className="px-4 py-3 font-semibold text-primary text-right">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {pageItems.length === 0 ? (
-                  <tr><td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
                 ) : pageItems.map((s) => (
                   <tr key={s.id} className="border-t border-border hover:bg-muted/50">
                     <td className="px-4 py-3 whitespace-nowrap">{fmtDate(s.sale_date)}</td>
@@ -249,6 +309,14 @@ const AdminVendas = () => {
                       <div className="text-xs text-muted-foreground">{s.responsible_email}</div>
                     </td>
                     <td className="px-4 py-3 text-right font-semibold text-primary whitespace-nowrap">{currency(Number(s.negotiated_value))}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => openDetails(s)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 text-xs font-semibold transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> Ver detalhes
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -273,6 +341,158 @@ const AdminVendas = () => {
           </div>
         </div>
       </main>
+
+      {detailSale && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={closeDetails}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-white z-10">
+              <div>
+                <h2 className="text-lg font-bold text-primary">Detalhes da venda</h2>
+                <p className="text-xs text-muted-foreground">Registrado em {fmtDate(detailSale.created_at)}</p>
+              </div>
+              <button onClick={closeDetails} className="p-2 rounded-full hover:bg-muted transition-colors" aria-label="Fechar">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Dados do cliente */}
+              <section>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Dados do cliente</h3>
+                <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                  <div className="bg-muted rounded-lg p-3">
+                    <div className="text-xs text-muted-foreground">Empresa</div>
+                    <div className="font-semibold text-foreground">{detailSale.company_name}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-3">
+                    <div className="text-xs text-muted-foreground">CNPJ</div>
+                    <div className="font-semibold text-foreground">{detailSale.cnpj}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-3">
+                    <div className="text-xs text-muted-foreground">Responsável</div>
+                    <div className="font-semibold text-foreground">{detailSale.responsible_name}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-3">
+                    <div className="text-xs text-muted-foreground">E-mail</div>
+                    <div className="font-semibold text-foreground break-all">{detailSale.responsible_email}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-3 sm:col-span-2">
+                    <div className="text-xs text-muted-foreground">Data da venda</div>
+                    <div className="font-semibold text-foreground">{fmtDate(detailSale.sale_date)}</div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Stands */}
+              <section>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Stands selecionados</h3>
+                {simStands.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">Nenhum stand registrado.</p>
+                ) : (
+                  <div className="border border-border rounded-lg overflow-hidden">
+                    {simStands.map((st, i) => (
+                      <div key={st.id + i} className="flex items-center justify-between px-4 py-3 border-b last:border-b-0 border-border text-sm">
+                        <div>
+                          <div className="font-medium text-foreground">Stand {st.name}</div>
+                          <div className="text-xs text-muted-foreground">{st.quantity}x • {currency(st.unit_price)} un.</div>
+                        </div>
+                        <div className="font-semibold text-primary">{currency(st.quantity * st.unit_price)}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              {/* Eventos */}
+              <section>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Eventos adicionais</h3>
+                {simEventos.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">Nenhum evento adicional selecionado.</p>
+                ) : (
+                  <div className="border border-border rounded-lg overflow-hidden">
+                    {simEventos.map((ev, i) => (
+                      <div key={ev.id + i} className="flex items-center justify-between px-4 py-3 border-b last:border-b-0 border-border text-sm">
+                        <div className="font-medium text-foreground">{ev.name}</div>
+                        <div className="font-semibold text-primary">{currency(ev.price)}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              {/* Desconto */}
+              {simDiscountValue > 0 && (
+                <section>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Desconto aplicado</h3>
+                  <div className="flex items-center justify-between bg-success/10 border border-success/30 rounded-lg px-4 py-3 text-sm">
+                    <span className="font-medium text-foreground">1ª participação ({simDiscountPct}%)</span>
+                    <span className="font-semibold text-success">- {currency(simDiscountValue)}</span>
+                  </div>
+                </section>
+              )}
+
+              {/* Detalhes da venda (notes) */}
+              <section>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Detalhes da venda</h3>
+                <div className="bg-muted rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap min-h-[3rem]">
+                  {detailSale.notes?.trim() || <span className="text-muted-foreground italic">Nenhuma observação registrada.</span>}
+                </div>
+              </section>
+
+              {/* Totais */}
+              <section className="border-t border-border pt-5 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-medium text-foreground">{currency(simSubtotal)}</span>
+                </div>
+                {simDiscountValue > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Desconto</span>
+                    <span className="font-medium text-success">- {currency(simDiscountValue)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-4 py-3">
+                  <span className="font-semibold text-primary">Valor da simulação</span>
+                  <span className="text-lg font-bold text-primary">{currency(simTotal)}</span>
+                </div>
+
+                <div className="bg-white border-2 border-success/40 rounded-lg p-4">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Valor negociado
+                  </label>
+                  <div className="mt-2 flex flex-col sm:flex-row gap-2">
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">R$</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={negotiatedInput}
+                        onChange={(e) => setNegotiatedInput(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-white border border-border text-base font-semibold text-primary focus:outline-none focus:ring-2 focus:ring-success/40"
+                        placeholder="0,00"
+                      />
+                    </div>
+                    <button
+                      onClick={handleSaveNegotiated}
+                      disabled={savingNegotiated}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-success text-white text-sm font-semibold hover:bg-success/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {savingNegotiated ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      Salvar valor negociado
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Este é o único campo editável. Os demais dados refletem a simulação original.
+                  </p>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
