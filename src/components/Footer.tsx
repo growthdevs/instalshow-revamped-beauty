@@ -106,10 +106,16 @@ const Footer = () => {
           >
             <h4 className="text-sm font-heading font-bold uppercase tracking-wider mb-5 text-white/70">Comercial</h4>
             <ul className="space-y-3">
-              {["Seja um expositor", "Feira virtual", "Patrocínio", "Mídia Kit"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-white/40 hover:text-white transition-colors text-sm hover:translate-x-1 inline-block">
-                    {item}
+              {[
+                { label: "Seja um expositor", href: "#" },
+                { label: "Feira virtual", href: "/feira-virtual" },
+                { label: "Patrocínio", href: "#" },
+                { label: "Mídia Kit", href: "#" },
+                { label: "Área do Expositor", href: "/expositor/login" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <a href={item.href} className="text-white/40 hover:text-white transition-colors text-sm hover:translate-x-1 inline-block">
+                    {item.label}
                   </a>
                 </li>
               ))}

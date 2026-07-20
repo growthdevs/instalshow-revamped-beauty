@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, LogIn } from "lucide-react";
 import logoInstalshow from "@/assets/logo-instalshow.svg";
 
 const Header = () => {
@@ -107,8 +107,8 @@ const Header = () => {
             </div>
           </nav>
 
-          {/* Language */}
-          <div className="hidden lg:flex items-center">
+          {/* Language + CTA */}
+          <div className="hidden lg:flex items-center gap-2">
             <button
               onClick={toggleLang}
               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold px-3 py-2 rounded-full hover:bg-white/10"
@@ -117,6 +117,16 @@ const Header = () => {
               <span className="text-base leading-none">{lang === "pt" ? "🇧🇷" : "🇺🇸"}</span>
               {lang === "pt" ? "PT" : "EN"}
             </button>
+            <motion.a
+              href="/expositor/login"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              className="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent text-white text-sm font-semibold shadow-lg shadow-accent/30 hover:shadow-accent/50 transition-shadow overflow-hidden group"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-accent to-accent/70 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <LogIn className="w-4 h-4 relative z-10" />
+              <span className="relative z-10">Área do Expositor</span>
+            </motion.a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -166,9 +176,17 @@ const Header = () => {
                   {link.label}
                 </motion.a>
               ))}
+              <a
+                href="/expositor/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center justify-center gap-2 mt-2 py-3 px-4 rounded-full bg-accent text-white text-sm font-semibold shadow-lg shadow-accent/30"
+              >
+                <LogIn className="w-4 h-4" />
+                Área do Expositor
+              </a>
               <button
                 onClick={toggleLang}
-                className="flex items-center justify-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold py-2.5 mt-3 rounded-full border border-white/10 hover:bg-white/5"
+                className="flex items-center justify-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-semibold py-2.5 mt-2 rounded-full border border-white/10 hover:bg-white/5"
               >
                 <span className="text-base leading-none">{lang === "pt" ? "🇧🇷" : "🇺🇸"}</span>
                 {lang === "pt" ? "Português" : "English"}
