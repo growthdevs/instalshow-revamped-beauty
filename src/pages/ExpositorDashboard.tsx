@@ -72,12 +72,20 @@ const ExpositorDashboard = () => {
           <Link to="/">
             <img src={logoInstalshow} alt="Instal Show" className="h-9 w-auto" />
           </Link>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-white/70 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors"
-          >
-            <LogOut className="w-4 h-4" /> Sair
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/expositor/simulador"
+              className="flex items-center gap-2 text-sm text-white/70 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> Voltar
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-sm text-white/70 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors"
+            >
+              <LogOut className="w-4 h-4" /> Sair
+            </button>
+          </div>
         </div>
       </header>
 
