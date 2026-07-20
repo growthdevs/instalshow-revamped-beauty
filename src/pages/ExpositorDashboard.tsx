@@ -12,8 +12,7 @@ const ExpositorDashboard = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [changingPass, setChangingPass] = useState(false);
-  const [newPass, setNewPass] = useState("");
+  const [sendingReset, setSendingReset] = useState(false);
 
   useEffect(() => {
     const init = async () => {
