@@ -9,7 +9,7 @@ import logoInstalshow from "@/assets/logo-instalshow.svg";
 
 const loginSchema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
-  password: z.string().min(6, "Senha deve ter ao menos 6 caracteres").max(72),
+  password: z.string().trim().min(6, "Senha deve ter ao menos 6 caracteres").max(72),
 });
 
 const signupSchema = z.object({
