@@ -19,12 +19,28 @@ import logoInstalshow from "@/assets/logo-instalshow.svg";
 type AdminUser = {
   id: string;
   email: string;
+  name: string;
+  phone: string;
+  cpf: string;
   created_at: string;
   last_sign_in_at: string | null;
 };
 
 const fmtDate = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
+
+const maskPhone = (v: string) => {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 10) return d.replace(/(\d{2})(\d{4})(\d{0,4}).*/, "($1) $2-$3").replace(/-$/, "");
+  return d.replace(/(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3").replace(/-$/, "");
+};
+const maskCpf = (v: string) => {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+};
 
 const AdminUsuarios = () => {
   const navigate = useNavigate();
@@ -37,6 +53,9 @@ const AdminUsuarios = () => {
   const [editing, setEditing] = useState<AdminUser | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [cpf, setCpf] = useState("");
 
   const call = async (method: string, body?: unknown) => {
     const { data: sess } = await supabase.auth.getSession();
@@ -92,6 +111,9 @@ const AdminUsuarios = () => {
     setEditing(null);
     setEmail("");
     setPassword("");
+    setName("");
+    setPhone("");
+    setCpf("");
     setModalOpen(true);
   };
 
@@ -99,6 +121,9 @@ const AdminUsuarios = () => {
     setEditing(u);
     setEmail(u.email);
     setPassword("");
+    setName(u.name || "");
+    setPhone(u.phone || "");
+    setCpf(u.cpf || "");
     setModalOpen(true);
   };
 
@@ -111,16 +136,29 @@ const AdminUsuarios = () => {
       toast({ title: "Senha deve ter ao menos 6 caracteres", variant: "destructive" });
       return;
     }
+    if (!name.trim() || !phone.trim() || !cpf.trim()) {
+      toast({ title: "Preencha nome, celular e CPF", variant: "destructive" });
+      return;
+    }
     setSaving(true);
     try {
       if (editing) {
         const body: Record<string, string> = { id: editing.id };
         if (email !== editing.email) body.email = email.trim();
         if (password) body.password = password;
+        body.name = name.trim();
+        body.phone = phone.trim();
+        body.cpf = cpf.trim();
         await call("PATCH", body);
         toast({ title: "Administrador atualizado" });
       } else {
-        await call("POST", { email: email.trim(), password });
+        await call("POST", {
+          email: email.trim(),
+          password,
+          name: name.trim(),
+          phone: phone.trim(),
+          cpf: cpf.trim(),
+        });
         toast({ title: "Administrador cadastrado" });
       }
       setModalOpen(false);
@@ -207,24 +245,28 @@ const AdminUsuarios = () => {
             <table className="w-full text-sm">
               <thead className="bg-muted text-left">
                 <tr>
+                  <th className="px-4 py-3 font-semibold text-primary">Nome</th>
                   <th className="px-4 py-3 font-semibold text-primary">E-mail</th>
-                  <th className="px-4 py-3 font-semibold text-primary">Criado em</th>
+                  <th className="px-4 py-3 font-semibold text-primary">Celular</th>
+                  <th className="px-4 py-3 font-semibold text-primary">CPF</th>
                   <th className="px-4 py-3 font-semibold text-primary">Último acesso</th>
                   <th className="px-4 py-3 font-semibold text-primary text-right">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {items.length === 0 ? (
-                  <tr><td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">Nenhum administrador cadastrado.</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">Nenhum administrador cadastrado.</td></tr>
                 ) : items.map((u) => (
                   <tr key={u.id} className="border-t border-border hover:bg-muted/50">
                     <td className="px-4 py-3 font-medium text-primary">
-                      {u.email}
+                      {u.name || "—"}
                       {u.id === selfId && (
                         <span className="ml-2 text-[10px] uppercase font-semibold text-muted-foreground">(você)</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{fmtDate(u.created_at)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{u.phone || "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{u.cpf || "—"}</td>
                     <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{fmtDate(u.last_sign_in_at)}</td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
@@ -260,7 +302,7 @@ const AdminUsuarios = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-5 space-y-4">
+            <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">E-mail</label>
                 <input
@@ -281,6 +323,36 @@ const AdminUsuarios = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-1 w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                   placeholder={editing ? "Deixe em branco para manter" : "Mínimo 6 caracteres"}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nome</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="mt-1 w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  placeholder="Nome completo"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Celular</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(maskPhone(e.target.value))}
+                  className="mt-1 w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">CPF</label>
+                <input
+                  type="text"
+                  value={cpf}
+                  onChange={(e) => setCpf(maskCpf(e.target.value))}
+                  className="mt-1 w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  placeholder="000.000.000-00"
                 />
               </div>
             </div>
