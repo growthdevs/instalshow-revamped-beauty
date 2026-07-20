@@ -199,6 +199,110 @@ const ExpositorSimulador = () => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
   };
 
+  const openSaleModal = () => {
+    if (totalStands === 0) {
+      toast({
+        title: "Selecione ao menos 1 stand",
+        description: "Adicione a quantidade desejada para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000;
+    const localIso = new Date(now.getTime() - tzOffset).toISOString().slice(0, 16);
+    setSaleForm((s) => ({
+      ...s,
+      company_name: s.company_name || profile?.company_name || "",
+      cnpj: s.cnpj || profile?.cnpj || "",
+      responsible_email: s.responsible_email || profile?.email || "",
+      negotiated_value: s.negotiated_value || total.toFixed(2),
+      sale_date: s.sale_date || localIso,
+    }));
+    setSaleOpen(true);
+  };
+
+  const handleRegistrarVenda = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const value = parseFloat(saleForm.negotiated_value.replace(",", "."));
+    if (
+      !saleForm.company_name.trim() ||
+      !saleForm.cnpj.trim() ||
+      !saleForm.responsible_name.trim() ||
+      !saleForm.responsible_email.trim() ||
+      !saleForm.sale_date ||
+      isNaN(value) ||
+      value <= 0
+    ) {
+      toast({
+        title: "Preencha todos os campos obrigatórios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSavingSale(true);
+    const { data: userRes } = await supabase.auth.getUser();
+    if (!userRes.user) {
+      setSavingSale(false);
+      return;
+    }
+
+    const simulation_data = {
+      stands: STANDS.filter((s) => (qtd[s.id] || 0) > 0).map((s) => ({
+        id: s.id,
+        name: s.name,
+        quantity: qtd[s.id],
+        unit_price: s.price,
+      })),
+      eventos: EVENTOS_ADICIONAIS.filter((ev) => eventos[ev.id]).map((ev) => ({
+        id: ev.id,
+        name: ev.name,
+        price: ev.price,
+      })),
+      first_participation_discount: primeira ? DESCONTO_PRIMEIRA_PCT : 0,
+      subtotal,
+      discount_value: descontoValor,
+      simulated_total: total,
+    };
+
+    const { error } = await supabase.from("sales").insert({
+      created_by: userRes.user.id,
+      company_name: saleForm.company_name.trim(),
+      cnpj: saleForm.cnpj.trim(),
+      responsible_name: saleForm.responsible_name.trim(),
+      responsible_email: saleForm.responsible_email.trim(),
+      negotiated_value: value,
+      notes: saleForm.notes.trim() || null,
+      sale_date: new Date(saleForm.sale_date).toISOString(),
+      simulation_data,
+    });
+    setSavingSale(false);
+
+    if (error) {
+      toast({ title: "Erro ao registrar venda", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    toast({
+      title: "Venda registrada com sucesso!",
+      description: `${saleForm.company_name} — ${currency(value)}`,
+    });
+    setSaleOpen(false);
+    setSaleForm({
+      company_name: "",
+      cnpj: "",
+      responsible_name: "",
+      responsible_email: "",
+      negotiated_value: "",
+      notes: "",
+      sale_date: "",
+    });
+    setQtd({ bronze: 0, prata: 0, ouro: 0 });
+    setEventos({});
+    setPrimeira(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
