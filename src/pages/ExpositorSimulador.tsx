@@ -317,7 +317,7 @@ const ExpositorSimulador = () => {
                         onChange={(ev) =>
                           setEventos((s) => ({ ...s, [e.id]: ev.target.checked }))
                         }
-                        className="w-5 h-5 accent-accent"
+                        className="w-5 h-5 accent-primary"
                       />
                       <div className="flex-1">
                       <div className="text-foreground font-medium">{e.name}</div>
