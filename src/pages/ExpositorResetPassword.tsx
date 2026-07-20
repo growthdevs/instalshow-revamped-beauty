@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Lock, Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Lock, Loader2, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -14,22 +14,58 @@ const schema = z
   })
   .refine((d) => d.password === d.confirm, { message: "As senhas não coincidem", path: ["confirm"] });
 
+type Status = "checking" | "ready" | "invalid";
+
 const ExpositorResetPassword = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState<Status>("checking");
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") setReady(true);
+    // Detect error from URL hash (expired/invalid token comes back as #error=...&error_code=otp_expired)
+    const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash;
+    const params = new URLSearchParams(hash);
+    const errCode = params.get("error_code") || params.get("error");
+    const errDesc = params.get("error_description");
+    if (errCode) {
+      const msg =
+        errCode === "otp_expired"
+          ? "O link de recuperação expirou. Solicite um novo e-mail de redefinição."
+          : errDesc?.replace(/\+/g, " ") || "Link inválido ou já utilizado. Solicite um novo e-mail.";
+      setErrorMsg(msg);
+      setStatus("invalid");
+      return;
+    }
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
+        setStatus("ready");
+      }
     });
+
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setReady(true);
+      if (data.session) setStatus("ready");
     });
-    return () => sub.subscription.unsubscribe();
+
+    // Fallback: if no session/recovery detected after 4s, mark as invalid
+    const timeout = setTimeout(() => {
+      setStatus((s) => {
+        if (s === "checking") {
+          setErrorMsg("Link de recuperação inválido ou expirado. Solicite um novo e-mail.");
+          return "invalid";
+        }
+        return s;
+      });
+    }, 4000);
+
+    return () => {
+      sub.subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
