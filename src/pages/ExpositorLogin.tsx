@@ -49,7 +49,7 @@ const formatCNPJ = (v: string) =>
 const ExpositorLogin = () => {
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [signupData, setSignupData] = useState({ company_name: "", email: "", cnpj: "", password: "" });
+  const [signupData, setSignupData] = useState({ company_name: "", responsible_name: "", email: "", phone: "", cnpj: "", password: "" });
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loadingSignup, setLoadingSignup] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
