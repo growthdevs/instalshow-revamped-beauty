@@ -162,6 +162,9 @@ const AdminVendas = () => {
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/admin/administradores" className="hidden md:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
+              <ShieldCheck className="w-4 h-4" /> Administradores
+            </Link>
             <Link to="/expositor/simulador" className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Simulador
             </Link>
