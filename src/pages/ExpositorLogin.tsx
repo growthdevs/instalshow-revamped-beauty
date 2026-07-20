@@ -43,10 +43,10 @@ const ExpositorLogin = () => {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate("/expositor/dashboard", { replace: true });
+      if (data.session) navigate("/expositor/simulador", { replace: true });
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session) navigate("/expositor/dashboard", { replace: true });
+      if (session) navigate("/expositor/simulador", { replace: true });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
@@ -80,7 +80,7 @@ const ExpositorLogin = () => {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/expositor/dashboard`,
+        emailRedirectTo: `${window.location.origin}/expositor/simulador`,
         data: {
           company_name: parsed.data.company_name,
           cnpj: parsed.data.cnpj.replace(/\D/g, ""),
