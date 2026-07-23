@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   X,
+  Gift,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -65,6 +66,8 @@ const EVENTOS_ADICIONAIS = [
   },
 ] as const;
 
+const DESCONTO_PRIMEIRA_PCT = 10;
+
 
 
 type Profile = { company_name: string; cnpj: string; email: string };
@@ -85,6 +88,7 @@ const ExpositorSimulador = () => {
   });
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
   const [desiredStands, setDesiredStands] = useState("");
+  const [primeira, setPrimeira] = useState(false);
 
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
@@ -144,7 +148,8 @@ const ExpositorSimulador = () => {
     [eventos],
   );
   const subtotal = subtotalStands + subtotalEventos;
-  const total = subtotal;
+  const descontoValor = primeira ? subtotal * (DESCONTO_PRIMEIRA_PCT / 100) : 0;
+  const total = subtotal - descontoValor;
   const totalStands = qtd.bronze + qtd.prata + qtd.ouro;
 
   const inc = (id: string) => setQtd((q) => ({ ...q, [id]: (q[id] || 0) + 1 }));
@@ -187,6 +192,11 @@ const ExpositorSimulador = () => {
 
     linhas.push("");
     linhas.push(`*Subtotal:* ${currency(subtotal)}`);
+    if (primeira) {
+      linhas.push(
+        `*Desconto ${DESCONTO_PRIMEIRA_PCT}% (1ª participação):* -${currency(descontoValor)}`,
+      );
+    }
     linhas.push(`*Total estimado:* ${currency(total)}`);
     linhas.push("");
     linhas.push("Gostaria de dar continuidade ao atendimento comercial.");
@@ -258,6 +268,11 @@ const ExpositorSimulador = () => {
       })),
       desired_stands: desiredStands.trim() || null,
       subtotal,
+      discount: {
+        applied: primeira,
+        percentage: DESCONTO_PRIMEIRA_PCT,
+        value: descontoValor,
+      },
       simulated_total: total,
     };
 
@@ -501,6 +516,36 @@ const ExpositorSimulador = () => {
                   );
                 })}
               </div>
+            </section>
+
+            {/* Desconto */}
+            <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <Gift className="w-4 h-4 text-primary" />
+                <h2 className="text-foreground font-semibold">Desconto</h2>
+              </div>
+              <p className="text-foreground/50 text-sm mb-4">
+                Aplica uma porcentagem de desconto automático sobre o total. Sujeito a validação da equipe comercial.
+              </p>
+              <label className="flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all bg-muted/30 border-border hover:border-foreground/20">
+                <input
+                  type="checkbox"
+                  checked={primeira}
+                  onChange={(ev) => setPrimeira(ev.target.checked)}
+                  className="w-5 h-5 accent-primary mt-0.5"
+                />
+                <div className="flex-1">
+                  <div className="text-foreground font-medium">
+                    Sua empresa já participou no Instal Show?
+                  </div>
+                  <div className="text-foreground/50 text-sm">
+                    Marque esta opção para aplicar {DESCONTO_PRIMEIRA_PCT}% de desconto sobre o subtotal.
+                  </div>
+                </div>
+                <div className="text-success font-semibold whitespace-nowrap">
+                  -{currency(descontoValor)}
+                </div>
+              </label>
             </section>
 
           </div>
