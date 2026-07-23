@@ -47,6 +47,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_simulations: {
+        Row: {
+          cnpj: string
+          code: string
+          company_name: string
+          created_at: string
+          created_by: string
+          id: string
+          notes: string | null
+          phone: string | null
+          responsible_email: string
+          responsible_name: string
+          simulation_data: Json
+          updated_at: string
+        }
+        Insert: {
+          cnpj: string
+          code: string
+          company_name: string
+          created_at?: string
+          created_by: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          responsible_email: string
+          responsible_name: string
+          simulation_data?: Json
+          updated_at?: string
+        }
+        Update: {
+          cnpj?: string
+          code?: string
+          company_name?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          responsible_email?: string
+          responsible_name?: string
+          simulation_data?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sales: {
         Row: {
           cnpj: string
@@ -118,6 +163,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_simulation_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
