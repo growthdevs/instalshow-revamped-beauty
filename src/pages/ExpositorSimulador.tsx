@@ -98,6 +98,11 @@ const ExpositorSimulador = () => {
   const [loadingCode, setLoadingCode] = useState(false);
   const [loadedCode, setLoadedCode] = useState<string | null>(null);
 
+  // Admin: cancelamento de simulação
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
   const [savingSale, setSavingSale] = useState(false);
