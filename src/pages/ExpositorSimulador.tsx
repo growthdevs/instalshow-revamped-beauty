@@ -175,6 +175,9 @@ const ExpositorSimulador = () => {
       if (q > 0)
         linhas.push(`• ${q}x Stand ${s.name} — ${currency(s.price * q)}`);
     });
+    if (desiredStands.trim()) {
+      linhas.push(`*Stands desejados:* ${desiredStands.trim()}`);
+    }
 
     const evSel = EVENTOS_ADICIONAIS.filter((e) => eventos[e.id]);
     if (evSel.length) {
@@ -254,6 +257,7 @@ const ExpositorSimulador = () => {
         name: ev.name,
         price: ev.price,
       })),
+      desired_stands: desiredStands.trim() || null,
       subtotal,
       simulated_total: total,
     };
