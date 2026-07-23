@@ -543,7 +543,7 @@ const ExpositorSimulador = () => {
                   </div>
                 </div>
                 <div className="text-success font-semibold whitespace-nowrap">
-                  -{currency(descontoValor)}
+                  {primeira && `-${currency(descontoValor)}`}
                 </div>
               </label>
             </section>
