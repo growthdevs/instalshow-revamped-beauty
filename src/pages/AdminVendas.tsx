@@ -382,9 +382,8 @@ const AdminVendas = () => {
                       {sortKey === "sale_date" && <span className="text-xs text-muted-foreground">({sortDir})</span>}
                     </button>
                   </th>
-                  <th className="px-4 py-3 font-semibold text-primary">Empresa</th>
-                  <th className="px-4 py-3 font-semibold text-primary">CNPJ</th>
-                  <th className="px-4 py-3 font-semibold text-primary">Código simulação</th>
+                   <th className="px-4 py-3 font-semibold text-primary">Empresa</th>
+                   <th className="px-4 py-3 font-semibold text-primary">CNPJ</th>
                   <th className="px-4 py-3 font-semibold text-primary">Responsável</th>
                   <th className="px-4 py-3 font-semibold text-primary">Status</th>
                   <th className="px-4 py-3 font-semibold text-primary text-right">
