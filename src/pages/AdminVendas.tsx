@@ -246,12 +246,13 @@ const AdminVendas = () => {
       return;
     }
     const headers = [
-      "Data da venda", "Empresa", "CNPJ", "Responsável", "E-mail", "Valor negociado", "Status", "Motivo rejeição", "Detalhes da venda", "Registrado em",
+      "Data da venda", "Empresa", "CNPJ", "Código simulação", "Responsável", "E-mail", "Valor negociado", "Status", "Motivo rejeição", "Detalhes da venda", "Registrado em",
     ];
     const rows = filtered.map((s) => [
       fmtDate(s.sale_date),
       s.company_name,
       s.cnpj,
+      ((s.simulation_data as any)?.code) || "N/A",
       s.responsible_name,
       s.responsible_email,
       String(s.negotiated_value).replace(".", ","),
@@ -383,6 +384,7 @@ const AdminVendas = () => {
                   </th>
                   <th className="px-4 py-3 font-semibold text-primary">Empresa</th>
                   <th className="px-4 py-3 font-semibold text-primary">CNPJ</th>
+                  <th className="px-4 py-3 font-semibold text-primary">Código simulação</th>
                   <th className="px-4 py-3 font-semibold text-primary">Responsável</th>
                   <th className="px-4 py-3 font-semibold text-primary">Status</th>
                   <th className="px-4 py-3 font-semibold text-primary text-right">
@@ -396,12 +398,15 @@ const AdminVendas = () => {
               </thead>
               <tbody>
                 {pageItems.length === 0 ? (
-                  <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
-                ) : pageItems.map((s) => (
+                  <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
+                ) : pageItems.map((s) => {
+                  const simCode = (s.simulation_data as any)?.code || null;
+                  return (
                   <tr key={s.id} className="border-t border-border hover:bg-muted/50">
                     <td className="px-4 py-3 whitespace-nowrap">{fmtDate(s.sale_date)}</td>
                     <td className="px-4 py-3 font-medium text-primary">{s.company_name}</td>
                     <td className="px-4 py-3 text-muted-foreground">{s.cnpj}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{simCode || <span className="text-muted-foreground">N/A</span>}</td>
                     <td className="px-4 py-3">
                       <div>{s.responsible_name}</div>
                       <div className="text-xs text-muted-foreground">{s.responsible_email}</div>
@@ -421,7 +426,8 @@ const AdminVendas = () => {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

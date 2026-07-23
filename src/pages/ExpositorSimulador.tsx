@@ -399,6 +399,7 @@ const ExpositorSimulador = () => {
         value: descontoValor,
       },
       simulated_total: total,
+      code: loadedCode || null,
     };
 
     const { error } = await supabase.from("sales").insert({
