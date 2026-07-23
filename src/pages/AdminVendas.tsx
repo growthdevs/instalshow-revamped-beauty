@@ -246,12 +246,13 @@ const AdminVendas = () => {
       return;
     }
     const headers = [
-      "Data da venda", "Empresa", "CNPJ", "Responsável", "E-mail", "Valor negociado", "Status", "Motivo rejeição", "Detalhes da venda", "Registrado em",
+      "Data da venda", "Empresa", "CNPJ", "Código simulação", "Responsável", "E-mail", "Valor negociado", "Status", "Motivo rejeição", "Detalhes da venda", "Registrado em",
     ];
     const rows = filtered.map((s) => [
       fmtDate(s.sale_date),
       s.company_name,
       s.cnpj,
+      ((s.simulation_data as any)?.code) || "N/A",
       s.responsible_name,
       s.responsible_email,
       String(s.negotiated_value).replace(".", ","),
