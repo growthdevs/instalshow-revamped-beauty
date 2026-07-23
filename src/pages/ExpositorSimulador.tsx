@@ -17,7 +17,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import logoInstalshow from "@/assets/logo-instalshow.svg";
-import mapaEvento from "@/assets/mapa-evento.jpg";
 
 const WHATSAPP_NUMBER = "5511963830660";
 
@@ -85,6 +84,7 @@ const ExpositorSimulador = () => {
     ouro: 0,
   });
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
+  const [desiredStands, setDesiredStands] = useState("");
 
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
@@ -174,6 +174,9 @@ const ExpositorSimulador = () => {
       if (q > 0)
         linhas.push(`• ${q}x Stand ${s.name} — ${currency(s.price * q)}`);
     });
+    if (desiredStands.trim()) {
+      linhas.push(`*Stands desejados:* ${desiredStands.trim()}`);
+    }
 
     const evSel = EVENTOS_ADICIONAIS.filter((e) => eventos[e.id]);
     if (evSel.length) {
@@ -253,6 +256,7 @@ const ExpositorSimulador = () => {
         name: ev.name,
         price: ev.price,
       })),
+      desired_stands: desiredStands.trim() || null,
       subtotal,
       simulated_total: total,
     };
@@ -379,7 +383,7 @@ const ExpositorSimulador = () => {
               </div>
               <div className="p-4">
                 <img
-                  src={mapaEvento}
+                  src="/mapa-instal.jpeg"
                   alt="Mapa do evento com localização dos stands"
                   loading="lazy"
                   width={1536}
@@ -434,6 +438,26 @@ const ExpositorSimulador = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              <div className="mt-6 bg-white border border-foreground/25 rounded-xl p-4">
+                <label
+                  htmlFor="desired-stands"
+                  className="block text-foreground font-semibold text-sm mb-1"
+                >
+                  Informar stands desejados
+                </label>
+                <p className="text-foreground/50 text-xs mb-3">
+                  Informe abaixo os números das posições de stands que deseja reservar. Nossa equipe comercial verificará a disponibilidade e confirmará as opções viáveis.
+                </p>
+                <input
+                  id="desired-stands"
+                  type="text"
+                  value={desiredStands}
+                  onChange={(e) => setDesiredStands(e.target.value)}
+                  placeholder="Ex.: 12, 13, 24, 25..."
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary transition-colors"
+                />
               </div>
             </section>
 
