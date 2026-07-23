@@ -86,7 +86,6 @@ const ExpositorSimulador = () => {
     ouro: 0,
   });
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
-  const [primeira, setPrimeira] = useState(false);
 
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
@@ -146,8 +145,7 @@ const ExpositorSimulador = () => {
     [eventos],
   );
   const subtotal = subtotalStands + subtotalEventos;
-  const descontoValor = primeira ? (subtotal * DESCONTO_PRIMEIRA_PCT) / 100 : 0;
-  const total = subtotal - descontoValor;
+  const total = subtotal;
   const totalStands = qtd.bronze + qtd.prata + qtd.ouro;
 
   const inc = (id: string) => setQtd((q) => ({ ...q, [id]: (q[id] || 0) + 1 }));
@@ -187,10 +185,6 @@ const ExpositorSimulador = () => {
 
     linhas.push("");
     linhas.push(`*Subtotal:* ${currency(subtotal)}`);
-    if (primeira)
-      linhas.push(
-        `*Desconto 1ª participação (${DESCONTO_PRIMEIRA_PCT}%):* -${currency(descontoValor)}`,
-      );
     linhas.push(`*Total estimado:* ${currency(total)}`);
     linhas.push("");
     linhas.push("Gostaria de dar continuidade ao atendimento comercial.");
@@ -260,9 +254,7 @@ const ExpositorSimulador = () => {
         name: ev.name,
         price: ev.price,
       })),
-      first_participation_discount: primeira ? DESCONTO_PRIMEIRA_PCT : 0,
       subtotal,
-      discount_value: descontoValor,
       simulated_total: total,
     };
 
@@ -300,7 +292,6 @@ const ExpositorSimulador = () => {
     });
     setQtd({ bronze: 0, prata: 0, ouro: 0 });
     setEventos({});
-    setPrimeira(false);
   };
 
   if (loading) {
@@ -559,16 +550,6 @@ const ExpositorSimulador = () => {
               </div>
 
               <div className="border-t border-border pt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-foreground/70">
-                  <span>Subtotal</span>
-                  <span>{currency(subtotal)}</span>
-                </div>
-                {primeira && (
-                  <div className="flex justify-between text-success">
-                    <span>Desconto</span>
-                    <span>-{currency(descontoValor)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-primary font-bold text-lg pt-2">
                   <span>Total</span>
                   <span>{currency(total)}</span>
