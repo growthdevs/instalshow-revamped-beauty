@@ -524,9 +524,6 @@ const ExpositorSimulador = () => {
                 <Gift className="w-4 h-4 text-primary" />
                 <h2 className="text-foreground font-semibold">Desconto</h2>
               </div>
-              <p className="text-foreground/50 text-sm mb-4">
-                Aplica uma porcentagem de desconto automático sobre o total. Sujeito a validação da equipe comercial.
-              </p>
               <label className="flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all bg-muted/30 border-border hover:border-foreground/20">
                 <input
                   type="checkbox"
@@ -539,7 +536,7 @@ const ExpositorSimulador = () => {
                     Sua empresa já participou no Instal Show?
                   </div>
                   <div className="text-foreground/50 text-sm">
-                    Marque esta opção para aplicar {DESCONTO_PRIMEIRA_PCT}% de desconto sobre o subtotal.
+                    Aplica uma porcentagem de desconto automático sobre o total. Sujeito a validação da equipe comercial.
                   </div>
                 </div>
                 <div className="text-success font-semibold whitespace-nowrap">
