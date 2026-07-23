@@ -510,8 +510,8 @@ const ExpositorSimulador = () => {
                     É a 1ª participação da sua empresa no Instal Show?
                   </div>
                   <div className="text-foreground/50 text-sm">
-                    Aplica {DESCONTO_PRIMEIRA_PCT}% de desconto automático sobre
-                    o total. Sujeito a validação da equipe comercial.
+                    Aplica uma porcentagem de desconto automático sobre o total.
+                    Sujeito a validação da equipe comercial.
                   </div>
                 </div>
               </label>
