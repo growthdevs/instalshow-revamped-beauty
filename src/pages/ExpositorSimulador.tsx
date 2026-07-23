@@ -480,33 +480,6 @@ const ExpositorSimulador = () => {
               </div>
             </section>
 
-            {/* Desconto */}
-            <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
-              <label
-                className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
-                  primeira
-                    ? "bg-success/5 border-success/40"
-                    : "bg-background border-border hover:border-foreground/20"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={primeira}
-                  onChange={(e) => setPrimeira(e.target.checked)}
-                  className="w-5 h-5 accent-success"
-                />
-                <Gift className="w-5 h-5 text-primary" />
-                <div className="flex-1">
-                  <div className="text-foreground font-medium">
-                    Sua empresa já participou no Instal Show?
-                  </div>
-                  <div className="text-foreground/50 text-sm">
-                    Aplica uma porcentagem de desconto automático sobre o total.
-                    Sujeito a validação da equipe comercial.
-                  </div>
-                </div>
-              </label>
-            </section>
           </div>
 
           {/* Right column — Resumo */}
