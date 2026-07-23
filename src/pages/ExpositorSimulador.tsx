@@ -143,7 +143,64 @@ const ExpositorSimulador = () => {
     navigate("/expositor/login", { replace: true });
   };
 
-  const subtotalStands = useMemo(
+  const generateCode = () => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let out = "";
+    for (let i = 0; i < 6; i++) out += chars[Math.floor(Math.random() * chars.length)];
+    return out;
+  };
+
+  const handleLoadCode = async () => {
+    const code = lookupCode.trim().toUpperCase();
+    if (code.length !== 6) {
+      toast({ title: "Código inválido", description: "Informe os 6 dígitos.", variant: "destructive" });
+      return;
+    }
+    setLoadingCode(true);
+    const { data, error } = await supabase
+      .from("pending_simulations")
+      .select("*")
+      .eq("code", code)
+      .maybeSingle();
+    setLoadingCode(false);
+    if (error || !data) {
+      toast({ title: "Simulação não encontrada", description: "Confira o código informado.", variant: "destructive" });
+      return;
+    }
+    const sim: any = data.simulation_data || {};
+    const newQtd: Record<string, number> = { bronze: 0, prata: 0, ouro: 0 };
+    (sim.stands || []).forEach((s: any) => {
+      if (s.id in newQtd) newQtd[s.id] = s.quantity || 0;
+    });
+    const newEv: Record<string, boolean> = {};
+    (sim.eventos || []).forEach((e: any) => {
+      newEv[e.id] = true;
+    });
+    setQtd(newQtd);
+    setEventos(newEv);
+    setDesiredStands(sim.desired_stands || "");
+    setPrimeira(!!sim.discount?.applied);
+
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000;
+    const localIso = new Date(now.getTime() - tzOffset).toISOString().slice(0, 16);
+    setSaleForm({
+      company_name: data.company_name || "",
+      cnpj: data.cnpj || "",
+      responsible_name: data.responsible_name || "",
+      responsible_email: data.responsible_email || "",
+      negotiated_value:
+        sim.negotiated_value != null
+          ? Number(sim.negotiated_value).toFixed(2)
+          : sim.simulated_total != null
+            ? Number(sim.simulated_total).toFixed(2)
+            : "",
+      notes: data.notes || "",
+      sale_date: localIso,
+    });
+    setLoadedCode(code);
+    toast({ title: "Simulação carregada", description: `Código ${code} — ${data.company_name}` });
+  };
     () => STANDS.reduce((sum, s) => sum + s.price * (qtd[s.id] || 0), 0),
     [qtd],
   );
