@@ -565,7 +565,7 @@ const ExpositorSimulador = () => {
                 </div>
                 {primeira && (
                   <div className="flex justify-between text-success">
-                    <span>Desconto 1ª participação</span>
+                    <span>Desconto</span>
                     <span>-{currency(descontoValor)}</span>
                   </div>
                 )}
