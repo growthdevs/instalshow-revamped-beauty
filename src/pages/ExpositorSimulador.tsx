@@ -507,7 +507,7 @@ const ExpositorSimulador = () => {
                 <Gift className="w-5 h-5 text-primary" />
                 <div className="flex-1">
                   <div className="text-foreground font-medium">
-                    É a 1ª participação da sua empresa no Instal Show?
+                    Sua empresa já participou no Instal Show?
                   </div>
                   <div className="text-foreground/50 text-sm">
                     Aplica uma porcentagem de desconto automático sobre o total.
