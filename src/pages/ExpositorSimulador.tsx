@@ -9,7 +9,6 @@ import {
   Sparkles,
   MessageCircle,
   Loader2,
-  Gift,
   LayoutDashboard,
   ShieldCheck,
   CheckCircle2,
