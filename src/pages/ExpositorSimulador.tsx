@@ -223,7 +223,7 @@ const ExpositorSimulador = () => {
   const dec = (id: string) =>
     setQtd((q) => ({ ...q, [id]: Math.max(0, (q[id] || 0) - 1) }));
 
-  const handleEnviarWhats = () => {
+  const handleEnviarWhats = async () => {
     if (totalStands === 0) {
       toast({
         title: "Selecione ao menos 1 stand",
@@ -233,9 +233,55 @@ const ExpositorSimulador = () => {
       return;
     }
 
+    // Persist a pending simulation with a 6-char code for the admin to retrieve later
+    const simulation_data = {
+      stands: STANDS.filter((s) => (qtd[s.id] || 0) > 0).map((s) => ({
+        id: s.id,
+        name: s.name,
+        quantity: qtd[s.id],
+        unit_price: s.price,
+      })),
+      eventos: EVENTOS_ADICIONAIS.filter((ev) => eventos[ev.id]).map((ev) => ({
+        id: ev.id,
+        name: ev.name,
+        price: ev.price,
+      })),
+      desired_stands: desiredStands.trim() || null,
+      subtotal,
+      discount: {
+        applied: primeira,
+        percentage: DESCONTO_PRIMEIRA_PCT,
+        value: descontoValor,
+      },
+      simulated_total: total,
+    };
+
+    const { data: userRes } = await supabase.auth.getUser();
+    let generatedCode: string | null = null;
+    if (userRes.user) {
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const code = generateCode();
+        const { error } = await supabase.from("pending_simulations").insert({
+          code,
+          created_by: userRes.user.id,
+          company_name: profile?.company_name ?? "-",
+          cnpj: profile?.cnpj ?? "-",
+          responsible_name: profile?.company_name ?? "-",
+          responsible_email: profile?.email ?? "-",
+          simulation_data,
+        });
+        if (!error) {
+          generatedCode = code;
+          break;
+        }
+        if (!error?.message?.toLowerCase().includes("duplicate")) break;
+      }
+    }
+
     const linhas: string[] = [];
     linhas.push("*Nova simulação — Instal Show 2026*");
     linhas.push("");
+    if (generatedCode) linhas.push(`*Código da simulação:* ${generatedCode}`);
     linhas.push(`*Empresa:* ${profile?.company_name ?? "-"}`);
     linhas.push(`*CNPJ:* ${profile?.cnpj ?? "-"}`);
     linhas.push(`*E-mail:* ${profile?.email ?? "-"}`);
@@ -270,6 +316,13 @@ const ExpositorSimulador = () => {
 
     const msg = encodeURIComponent(linhas.join("\n"));
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+
+    if (generatedCode) {
+      toast({
+        title: `Código da simulação: ${generatedCode}`,
+        description: "Guarde este código — nossa equipe usará para recuperar sua simulação.",
+      });
+    }
   };
 
   const openSaleModal = () => {
