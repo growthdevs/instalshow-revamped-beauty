@@ -101,10 +101,12 @@ export type Database = {
           id: string
           negotiated_value: number
           notes: string | null
+          rejection_reason: string | null
           responsible_email: string
           responsible_name: string
           sale_date: string
           simulation_data: Json
+          status: Database["public"]["Enums"]["sale_status"]
           updated_at: string
         }
         Insert: {
@@ -115,10 +117,12 @@ export type Database = {
           id?: string
           negotiated_value: number
           notes?: string | null
+          rejection_reason?: string | null
           responsible_email: string
           responsible_name: string
           sale_date: string
           simulation_data?: Json
+          status?: Database["public"]["Enums"]["sale_status"]
           updated_at?: string
         }
         Update: {
@@ -129,10 +133,12 @@ export type Database = {
           id?: string
           negotiated_value?: number
           notes?: string | null
+          rejection_reason?: string | null
           responsible_email?: string
           responsible_name?: string
           sale_date?: string
           simulation_data?: Json
+          status?: Database["public"]["Enums"]["sale_status"]
           updated_at?: string
         }
         Relationships: []
@@ -173,6 +179,11 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "expositor"
+      sale_status:
+        | "em_analise"
+        | "aguardando_assinatura"
+        | "contrato_assinado"
+        | "rejeitado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -301,6 +312,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "expositor"],
+      sale_status: [
+        "em_analise",
+        "aguardando_assinatura",
+        "contrato_assinado",
+        "rejeitado",
+      ],
     },
   },
 } as const
