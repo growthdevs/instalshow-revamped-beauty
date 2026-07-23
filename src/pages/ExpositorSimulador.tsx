@@ -192,6 +192,11 @@ const ExpositorSimulador = () => {
 
     linhas.push("");
     linhas.push(`*Subtotal:* ${currency(subtotal)}`);
+    if (primeira) {
+      linhas.push(
+        `*Desconto ${DESCONTO_PRIMEIRA_PCT}% (1ª participação):* -${currency(descontoValor)}`,
+      );
+    }
     linhas.push(`*Total estimado:* ${currency(total)}`);
     linhas.push("");
     linhas.push("Gostaria de dar continuidade ao atendimento comercial.");
@@ -263,6 +268,11 @@ const ExpositorSimulador = () => {
       })),
       desired_stands: desiredStands.trim() || null,
       subtotal,
+      discount: {
+        applied: primeira,
+        percentage: DESCONTO_PRIMEIRA_PCT,
+        value: descontoValor,
+      },
       simulated_total: total,
     };
 
