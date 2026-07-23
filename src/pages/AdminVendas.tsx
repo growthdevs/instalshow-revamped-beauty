@@ -397,15 +397,13 @@ const AdminVendas = () => {
               </thead>
               <tbody>
                 {pageItems.length === 0 ? (
-                  <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
+                  <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
                 ) : pageItems.map((s) => {
-                  const simCode = (s.simulation_data as any)?.code || null;
                   return (
                   <tr key={s.id} className="border-t border-border hover:bg-muted/50">
                     <td className="px-4 py-3 whitespace-nowrap">{fmtDate(s.sale_date)}</td>
                     <td className="px-4 py-3 font-medium text-primary">{s.company_name}</td>
                     <td className="px-4 py-3 text-muted-foreground">{s.cnpj}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{simCode || <span className="text-muted-foreground">N/A</span>}</td>
                     <td className="px-4 py-3">
                       <div>{s.responsible_name}</div>
                       <div className="text-xs text-muted-foreground">{s.responsible_email}</div>
