@@ -380,7 +380,7 @@ const ExpositorSimulador = () => {
               </div>
               <div className="p-4">
                 <img
-                  src={mapaEvento}
+                  src={mapaEvento.url}
                   alt="Mapa do evento com localização dos stands"
                   loading="lazy"
                   width={1536}
