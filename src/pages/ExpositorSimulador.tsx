@@ -67,7 +67,7 @@ const EVENTOS_ADICIONAIS = [
   },
 ] as const;
 
-const DESCONTO_PRIMEIRA_PCT = 10;
+
 
 type Profile = { company_name: string; cnpj: string; email: string };
 
