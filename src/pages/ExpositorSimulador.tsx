@@ -455,7 +455,7 @@ const ExpositorSimulador = () => {
                   type="text"
                   value={desiredStands}
                   onChange={(e) => setDesiredStands(e.target.value)}
-                  placeholder="Ex.: 12, 13, 24, 25..."
+                  placeholder="Ex.: B12, B15, C2, A35..."
                   className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
