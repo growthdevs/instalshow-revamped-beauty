@@ -489,9 +489,15 @@ const AdminVendas = () => {
                     <div className="text-xs text-muted-foreground">E-mail</div>
                     <div className="font-semibold text-foreground break-all">{detailSale.responsible_email}</div>
                   </div>
-                  <div className="bg-muted rounded-lg p-3 sm:col-span-2">
+                  <div className="bg-muted rounded-lg p-3">
                     <div className="text-xs text-muted-foreground">Data da venda</div>
                     <div className="font-semibold text-foreground">{fmtDate(detailSale.sale_date)}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-3">
+                    <div className="text-xs text-muted-foreground">Código simulação</div>
+                    <div className="font-semibold text-foreground font-mono">
+                      {(detailSale.simulation_data as any)?.code || <span className="text-muted-foreground font-sans font-normal">N/A</span>}
+                    </div>
                   </div>
                 </div>
               </section>
