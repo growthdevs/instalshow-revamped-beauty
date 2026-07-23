@@ -524,8 +524,6 @@ const ExpositorSimulador = () => {
                 <Gift className="w-4 h-4 text-primary" />
                 <h2 className="text-foreground font-semibold">Desconto</h2>
               </div>
-              <p className="text-foreground/50 text-sm mb-4">
-              </p>
               <label className="flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all bg-muted/30 border-border hover:border-foreground/20">
                 <input
                   type="checkbox"
