@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   X,
   Gift,
+  KeyRound,
+  Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -90,6 +92,11 @@ const ExpositorSimulador = () => {
   const [desiredStands, setDesiredStands] = useState("");
   const [primeira, setPrimeira] = useState(false);
 
+  // Admin: código de simulação
+  const [lookupCode, setLookupCode] = useState("");
+  const [loadingCode, setLoadingCode] = useState(false);
+  const [loadedCode, setLoadedCode] = useState<string | null>(null);
+
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
   const [savingSale, setSavingSale] = useState(false);
@@ -135,6 +142,65 @@ const ExpositorSimulador = () => {
     navigate("/expositor/login", { replace: true });
   };
 
+  const generateCode = () => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let out = "";
+    for (let i = 0; i < 6; i++) out += chars[Math.floor(Math.random() * chars.length)];
+    return out;
+  };
+
+  const handleLoadCode = async () => {
+    const code = lookupCode.trim().toUpperCase();
+    if (code.length !== 6) {
+      toast({ title: "Código inválido", description: "Informe os 6 dígitos.", variant: "destructive" });
+      return;
+    }
+    setLoadingCode(true);
+    const { data, error } = await supabase
+      .from("pending_simulations")
+      .select("*")
+      .eq("code", code)
+      .maybeSingle();
+    setLoadingCode(false);
+    if (error || !data) {
+      toast({ title: "Simulação não encontrada", description: "Confira o código informado.", variant: "destructive" });
+      return;
+    }
+    const sim: any = data.simulation_data || {};
+    const newQtd: Record<string, number> = { bronze: 0, prata: 0, ouro: 0 };
+    (sim.stands || []).forEach((s: any) => {
+      if (s.id in newQtd) newQtd[s.id] = s.quantity || 0;
+    });
+    const newEv: Record<string, boolean> = {};
+    (sim.eventos || []).forEach((e: any) => {
+      newEv[e.id] = true;
+    });
+    setQtd(newQtd);
+    setEventos(newEv);
+    setDesiredStands(sim.desired_stands || "");
+    setPrimeira(!!sim.discount?.applied);
+
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000;
+    const localIso = new Date(now.getTime() - tzOffset).toISOString().slice(0, 16);
+    setSaleForm({
+      company_name: data.company_name || "",
+      cnpj: data.cnpj || "",
+      responsible_name: data.responsible_name || "",
+      responsible_email: data.responsible_email || "",
+      negotiated_value:
+        sim.negotiated_value != null
+          ? Number(sim.negotiated_value).toFixed(2)
+          : sim.simulated_total != null
+            ? Number(sim.simulated_total).toFixed(2)
+            : "",
+      notes: data.notes || "",
+      sale_date: localIso,
+    });
+    setLoadedCode(code);
+    toast({ title: "Simulação carregada", description: `Código ${code} — ${data.company_name}` });
+  };
+
   const subtotalStands = useMemo(
     () => STANDS.reduce((sum, s) => sum + s.price * (qtd[s.id] || 0), 0),
     [qtd],
@@ -156,7 +222,7 @@ const ExpositorSimulador = () => {
   const dec = (id: string) =>
     setQtd((q) => ({ ...q, [id]: Math.max(0, (q[id] || 0) - 1) }));
 
-  const handleEnviarWhats = () => {
+  const handleEnviarWhats = async () => {
     if (totalStands === 0) {
       toast({
         title: "Selecione ao menos 1 stand",
@@ -166,9 +232,55 @@ const ExpositorSimulador = () => {
       return;
     }
 
+    // Persist a pending simulation with a 6-char code for the admin to retrieve later
+    const simulation_data = {
+      stands: STANDS.filter((s) => (qtd[s.id] || 0) > 0).map((s) => ({
+        id: s.id,
+        name: s.name,
+        quantity: qtd[s.id],
+        unit_price: s.price,
+      })),
+      eventos: EVENTOS_ADICIONAIS.filter((ev) => eventos[ev.id]).map((ev) => ({
+        id: ev.id,
+        name: ev.name,
+        price: ev.price,
+      })),
+      desired_stands: desiredStands.trim() || null,
+      subtotal,
+      discount: {
+        applied: primeira,
+        percentage: DESCONTO_PRIMEIRA_PCT,
+        value: descontoValor,
+      },
+      simulated_total: total,
+    };
+
+    const { data: userRes } = await supabase.auth.getUser();
+    let generatedCode: string | null = null;
+    if (userRes.user) {
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const code = generateCode();
+        const { error } = await supabase.from("pending_simulations").insert({
+          code,
+          created_by: userRes.user.id,
+          company_name: profile?.company_name ?? "-",
+          cnpj: profile?.cnpj ?? "-",
+          responsible_name: profile?.company_name ?? "-",
+          responsible_email: profile?.email ?? "-",
+          simulation_data,
+        });
+        if (!error) {
+          generatedCode = code;
+          break;
+        }
+        if (!error?.message?.toLowerCase().includes("duplicate")) break;
+      }
+    }
+
     const linhas: string[] = [];
     linhas.push("*Nova simulação — Instal Show 2026*");
     linhas.push("");
+    if (generatedCode) linhas.push(`*Código da simulação:* ${generatedCode}`);
     linhas.push(`*Empresa:* ${profile?.company_name ?? "-"}`);
     linhas.push(`*CNPJ:* ${profile?.cnpj ?? "-"}`);
     linhas.push(`*E-mail:* ${profile?.email ?? "-"}`);
@@ -203,6 +315,13 @@ const ExpositorSimulador = () => {
 
     const msg = encodeURIComponent(linhas.join("\n"));
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+
+    if (generatedCode) {
+      toast({
+        title: `Código da simulação: ${generatedCode}`,
+        description: "Guarde este código — nossa equipe usará para recuperar sua simulação.",
+      });
+    }
   };
 
   const openSaleModal = () => {
@@ -390,6 +509,43 @@ const ExpositorSimulador = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left column */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Código de simulação (admin) */}
+            {isAdmin && (
+              <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <KeyRound className="w-4 h-4 text-primary" />
+                  <h2 className="text-foreground font-semibold">Recuperar simulação por código</h2>
+                </div>
+                <p className="text-foreground/50 text-sm mb-4">
+                  Informe o código de 6 dígitos gerado quando o expositor concluiu a simulação para carregar automaticamente todos os dados.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    value={lookupCode}
+                    onChange={(e) => setLookupCode(e.target.value.toUpperCase().slice(0, 6))}
+                    placeholder="Ex.: DEMO01"
+                    maxLength={6}
+                    className="flex-1 bg-white border border-foreground/25 rounded-lg px-3 py-2.5 text-foreground font-mono tracking-widest uppercase focus:outline-none focus:border-primary transition-colors"
+                  />
+                  <button
+                    onClick={handleLoadCode}
+                    disabled={loadingCode || lookupCode.trim().length !== 6}
+                    className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
+                  >
+                    {loadingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                    Carregar simulação
+                  </button>
+                </div>
+                {loadedCode && (
+                  <div className="mt-3 flex items-center gap-2 text-sm text-success">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Simulação <span className="font-mono font-semibold">{loadedCode}</span> carregada.
+                  </div>
+                )}
+              </section>
+            )}
+
             {/* Mapa */}
             <section className="bg-muted border border-border rounded-2xl overflow-hidden shadow-sm">
               <div className="flex items-center gap-2 p-5 border-b border-border">
