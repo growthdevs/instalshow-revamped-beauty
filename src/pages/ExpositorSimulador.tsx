@@ -201,6 +201,8 @@ const ExpositorSimulador = () => {
     setLoadedCode(code);
     toast({ title: "Simulação carregada", description: `Código ${code} — ${data.company_name}` });
   };
+
+  const subtotalStands = useMemo(
     () => STANDS.reduce((sum, s) => sum + s.price * (qtd[s.id] || 0), 0),
     [qtd],
   );
