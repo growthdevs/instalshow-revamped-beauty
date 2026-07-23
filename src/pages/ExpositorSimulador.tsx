@@ -518,6 +518,36 @@ const ExpositorSimulador = () => {
               </div>
             </section>
 
+            {/* Desconto */}
+            <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <Gift className="w-4 h-4 text-primary" />
+                <h2 className="text-foreground font-semibold">Desconto</h2>
+              </div>
+              <p className="text-foreground/50 text-sm mb-4">
+                Aplica uma porcentagem de desconto automático sobre o total. Sujeito a validação da equipe comercial.
+              </p>
+              <label className="flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all bg-muted/30 border-border hover:border-foreground/20">
+                <input
+                  type="checkbox"
+                  checked={primeira}
+                  onChange={(ev) => setPrimeira(ev.target.checked)}
+                  className="w-5 h-5 accent-primary mt-0.5"
+                />
+                <div className="flex-1">
+                  <div className="text-foreground font-medium">
+                    Sua empresa já participou no Instal Show?
+                  </div>
+                  <div className="text-foreground/50 text-sm">
+                    Marque esta opção para aplicar {DESCONTO_PRIMEIRA_PCT}% de desconto sobre o subtotal.
+                  </div>
+                </div>
+                <div className="text-success font-semibold whitespace-nowrap">
+                  -{currency(descontoValor)}
+                </div>
+              </label>
+            </section>
+
           </div>
 
           {/* Right column — Resumo */}
