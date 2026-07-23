@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   X,
+  Gift,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -65,6 +66,8 @@ const EVENTOS_ADICIONAIS = [
   },
 ] as const;
 
+const DESCONTO_PRIMEIRA_PCT = 10;
+
 
 
 type Profile = { company_name: string; cnpj: string; email: string };
@@ -85,6 +88,7 @@ const ExpositorSimulador = () => {
   });
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
   const [desiredStands, setDesiredStands] = useState("");
+  const [primeira, setPrimeira] = useState(false);
 
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
@@ -144,7 +148,8 @@ const ExpositorSimulador = () => {
     [eventos],
   );
   const subtotal = subtotalStands + subtotalEventos;
-  const total = subtotal;
+  const descontoValor = primeira ? subtotal * (DESCONTO_PRIMEIRA_PCT / 100) : 0;
+  const total = subtotal - descontoValor;
   const totalStands = qtd.bronze + qtd.prata + qtd.ouro;
 
   const inc = (id: string) => setQtd((q) => ({ ...q, [id]: (q[id] || 0) + 1 }));
