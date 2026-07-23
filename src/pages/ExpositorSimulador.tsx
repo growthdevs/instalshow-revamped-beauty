@@ -93,6 +93,11 @@ const ExpositorSimulador = () => {
   const [desiredStands, setDesiredStands] = useState("");
   const [primeira, setPrimeira] = useState(false);
 
+  // Admin: código de simulação
+  const [lookupCode, setLookupCode] = useState("");
+  const [loadingCode, setLoadingCode] = useState(false);
+  const [loadedCode, setLoadedCode] = useState<string | null>(null);
+
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
   const [savingSale, setSavingSale] = useState(false);
