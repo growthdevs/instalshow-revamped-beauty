@@ -510,6 +510,43 @@ const ExpositorSimulador = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left column */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Código de simulação (admin) */}
+            {isAdmin && (
+              <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-1">
+                  <KeyRound className="w-4 h-4 text-primary" />
+                  <h2 className="text-foreground font-semibold">Recuperar simulação por código</h2>
+                </div>
+                <p className="text-foreground/50 text-sm mb-4">
+                  Informe o código de 6 dígitos gerado quando o expositor concluiu a simulação para carregar automaticamente todos os dados.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    value={lookupCode}
+                    onChange={(e) => setLookupCode(e.target.value.toUpperCase().slice(0, 6))}
+                    placeholder="Ex.: DEMO01"
+                    maxLength={6}
+                    className="flex-1 bg-white border border-foreground/25 rounded-lg px-3 py-2.5 text-foreground font-mono tracking-widest uppercase focus:outline-none focus:border-primary transition-colors"
+                  />
+                  <button
+                    onClick={handleLoadCode}
+                    disabled={loadingCode || lookupCode.trim().length !== 6}
+                    className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors disabled:opacity-60"
+                  >
+                    {loadingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                    Carregar simulação
+                  </button>
+                </div>
+                {loadedCode && (
+                  <div className="mt-3 flex items-center gap-2 text-sm text-success">
+                    <CheckCircle2 className="w-4 h-4" />
+                    Simulação <span className="font-mono font-semibold">{loadedCode}</span> carregada.
+                  </div>
+                )}
+              </section>
+            )}
+
             {/* Mapa */}
             <section className="bg-muted border border-border rounded-2xl overflow-hidden shadow-sm">
               <div className="flex items-center gap-2 p-5 border-b border-border">
