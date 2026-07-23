@@ -382,9 +382,8 @@ const AdminVendas = () => {
                       {sortKey === "sale_date" && <span className="text-xs text-muted-foreground">({sortDir})</span>}
                     </button>
                   </th>
-                  <th className="px-4 py-3 font-semibold text-primary">Empresa</th>
-                  <th className="px-4 py-3 font-semibold text-primary">CNPJ</th>
-                  <th className="px-4 py-3 font-semibold text-primary">Código simulação</th>
+                   <th className="px-4 py-3 font-semibold text-primary">Empresa</th>
+                   <th className="px-4 py-3 font-semibold text-primary">CNPJ</th>
                   <th className="px-4 py-3 font-semibold text-primary">Responsável</th>
                   <th className="px-4 py-3 font-semibold text-primary">Status</th>
                   <th className="px-4 py-3 font-semibold text-primary text-right">
@@ -398,15 +397,13 @@ const AdminVendas = () => {
               </thead>
               <tbody>
                 {pageItems.length === 0 ? (
-                  <tr><td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
+                  <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
                 ) : pageItems.map((s) => {
-                  const simCode = (s.simulation_data as any)?.code || null;
                   return (
                   <tr key={s.id} className="border-t border-border hover:bg-muted/50">
                     <td className="px-4 py-3 whitespace-nowrap">{fmtDate(s.sale_date)}</td>
                     <td className="px-4 py-3 font-medium text-primary">{s.company_name}</td>
                     <td className="px-4 py-3 text-muted-foreground">{s.cnpj}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{simCode || <span className="text-muted-foreground">N/A</span>}</td>
                     <td className="px-4 py-3">
                       <div>{s.responsible_name}</div>
                       <div className="text-xs text-muted-foreground">{s.responsible_email}</div>
@@ -492,9 +489,15 @@ const AdminVendas = () => {
                     <div className="text-xs text-muted-foreground">E-mail</div>
                     <div className="font-semibold text-foreground break-all">{detailSale.responsible_email}</div>
                   </div>
-                  <div className="bg-muted rounded-lg p-3 sm:col-span-2">
+                  <div className="bg-muted rounded-lg p-3">
                     <div className="text-xs text-muted-foreground">Data da venda</div>
                     <div className="font-semibold text-foreground">{fmtDate(detailSale.sale_date)}</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-3">
+                    <div className="text-xs text-muted-foreground">Código simulação</div>
+                    <div className="font-semibold text-foreground font-mono">
+                      {(detailSale.simulation_data as any)?.code || <span className="text-muted-foreground font-sans font-normal">N/A</span>}
+                    </div>
                   </div>
                 </div>
               </section>
