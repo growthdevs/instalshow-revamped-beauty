@@ -17,7 +17,6 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import logoInstalshow from "@/assets/logo-instalshow.svg";
-import mapaEvento from "@/assets/mapa-instal.jpeg.asset.json";
 
 const WHATSAPP_NUMBER = "5511963830660";
 
@@ -384,7 +383,7 @@ const ExpositorSimulador = () => {
               </div>
               <div className="p-4">
                 <img
-                  src={mapaEvento.url}
+                  src="/mapa-instal.jpeg"
                   alt="Mapa do evento com localização dos stands"
                   loading="lazy"
                   width={1536}
