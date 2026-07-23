@@ -436,6 +436,26 @@ const ExpositorSimulador = () => {
                   </div>
                 ))}
               </div>
+
+              <div className="mt-6 bg-white border border-foreground/25 rounded-xl p-4">
+                <label
+                  htmlFor="desired-stands"
+                  className="block text-foreground font-semibold text-sm mb-1"
+                >
+                  Informar stands desejados
+                </label>
+                <p className="text-foreground/50 text-xs mb-3">
+                  Informe abaixo os números das posições de stands que deseja reservar. Nossa equipe comercial verificará a disponibilidade e confirmará as opções viáveis.
+                </p>
+                <input
+                  id="desired-stands"
+                  type="text"
+                  value={desiredStands}
+                  onChange={(e) => setDesiredStands(e.target.value)}
+                  placeholder="Ex.: 12, 13, 24, 25..."
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
             </section>
 
             {/* Eventos adicionais */}
