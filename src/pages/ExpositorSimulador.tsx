@@ -9,7 +9,6 @@ import {
   Sparkles,
   MessageCircle,
   Loader2,
-  Gift,
   LayoutDashboard,
   ShieldCheck,
   CheckCircle2,
@@ -67,7 +66,7 @@ const EVENTOS_ADICIONAIS = [
   },
 ] as const;
 
-const DESCONTO_PRIMEIRA_PCT = 10;
+
 
 type Profile = { company_name: string; cnpj: string; email: string };
 
@@ -86,7 +85,6 @@ const ExpositorSimulador = () => {
     ouro: 0,
   });
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
-  const [primeira, setPrimeira] = useState(false);
 
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
@@ -146,8 +144,7 @@ const ExpositorSimulador = () => {
     [eventos],
   );
   const subtotal = subtotalStands + subtotalEventos;
-  const descontoValor = primeira ? (subtotal * DESCONTO_PRIMEIRA_PCT) / 100 : 0;
-  const total = subtotal - descontoValor;
+  const total = subtotal;
   const totalStands = qtd.bronze + qtd.prata + qtd.ouro;
 
   const inc = (id: string) => setQtd((q) => ({ ...q, [id]: (q[id] || 0) + 1 }));
@@ -187,10 +184,6 @@ const ExpositorSimulador = () => {
 
     linhas.push("");
     linhas.push(`*Subtotal:* ${currency(subtotal)}`);
-    if (primeira)
-      linhas.push(
-        `*Desconto 1ª participação (${DESCONTO_PRIMEIRA_PCT}%):* -${currency(descontoValor)}`,
-      );
     linhas.push(`*Total estimado:* ${currency(total)}`);
     linhas.push("");
     linhas.push("Gostaria de dar continuidade ao atendimento comercial.");
@@ -260,9 +253,7 @@ const ExpositorSimulador = () => {
         name: ev.name,
         price: ev.price,
       })),
-      first_participation_discount: primeira ? DESCONTO_PRIMEIRA_PCT : 0,
       subtotal,
-      discount_value: descontoValor,
       simulated_total: total,
     };
 
@@ -300,7 +291,6 @@ const ExpositorSimulador = () => {
     });
     setQtd({ bronze: 0, prata: 0, ouro: 0 });
     setEventos({});
-    setPrimeira(false);
   };
 
   if (loading) {
@@ -489,33 +479,6 @@ const ExpositorSimulador = () => {
               </div>
             </section>
 
-            {/* Desconto */}
-            <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
-              <label
-                className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
-                  primeira
-                    ? "bg-success/5 border-success/40"
-                    : "bg-background border-border hover:border-foreground/20"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={primeira}
-                  onChange={(e) => setPrimeira(e.target.checked)}
-                  className="w-5 h-5 accent-success"
-                />
-                <Gift className="w-5 h-5 text-primary" />
-                <div className="flex-1">
-                  <div className="text-foreground font-medium">
-                    Sua empresa já participou no Instal Show?
-                  </div>
-                  <div className="text-foreground/50 text-sm">
-                    Aplica uma porcentagem de desconto automático sobre o total.
-                    Sujeito a validação da equipe comercial.
-                  </div>
-                </div>
-              </label>
-            </section>
           </div>
 
           {/* Right column — Resumo */}
@@ -559,16 +522,6 @@ const ExpositorSimulador = () => {
               </div>
 
               <div className="border-t border-border pt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-foreground/70">
-                  <span>Subtotal</span>
-                  <span>{currency(subtotal)}</span>
-                </div>
-                {primeira && (
-                  <div className="flex justify-between text-success">
-                    <span>Desconto</span>
-                    <span>-{currency(descontoValor)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-primary font-bold text-lg pt-2">
                   <span>Total</span>
                   <span>{currency(total)}</span>
