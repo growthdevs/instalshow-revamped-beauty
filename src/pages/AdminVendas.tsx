@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowUpDown,
+  Ban,
+  CheckCircle2,
   Download,
   Eye,
   Loader2,
@@ -27,6 +29,8 @@ type SimulationData = {
   simulated_total?: number;
 };
 
+type SaleStatus = "em_analise" | "aguardando_assinatura" | "contrato_assinado" | "rejeitado";
+
 type Sale = {
   id: string;
   company_name: string;
@@ -38,12 +42,33 @@ type Sale = {
   sale_date: string;
   created_at: string;
   simulation_data: SimulationData | null;
+  status: SaleStatus;
+  rejection_reason: string | null;
 };
 
 type SortKey = "sale_date" | "negotiated_value";
 type SortDir = "asc" | "desc";
 
 const PAGE_SIZE = 10;
+
+const STATUS_META: Record<SaleStatus, { label: string; badge: string }> = {
+  em_analise: {
+    label: "Em análise",
+    badge: "bg-amber-100 text-amber-800 border-amber-300",
+  },
+  aguardando_assinatura: {
+    label: "Aguardando Assinatura",
+    badge: "bg-blue-100 text-blue-800 border-blue-300",
+  },
+  contrato_assinado: {
+    label: "Contrato Assinado",
+    badge: "bg-emerald-100 text-emerald-800 border-emerald-300",
+  },
+  rejeitado: {
+    label: "Rejeitado",
+    badge: "bg-red-100 text-red-800 border-red-300",
+  },
+};
 
 const currency = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -59,6 +84,7 @@ const AdminVendas = () => {
   const [company, setCompany] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | SaleStatus>("all");
   const [sortKey, setSortKey] = useState<SortKey>("sale_date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
@@ -66,6 +92,12 @@ const AdminVendas = () => {
   const [detailSale, setDetailSale] = useState<Sale | null>(null);
   const [negotiatedInput, setNegotiatedInput] = useState("");
   const [savingNegotiated, setSavingNegotiated] = useState(false);
+
+  const [confirmSign, setConfirmSign] = useState(false);
+  const [processingSign, setProcessingSign] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [processingReject, setProcessingReject] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -85,7 +117,7 @@ const AdminVendas = () => {
       }
       const { data, error } = await supabase
         .from("sales")
-        .select("id, company_name, cnpj, responsible_name, responsible_email, negotiated_value, notes, sale_date, created_at, simulation_data")
+        .select("id, company_name, cnpj, responsible_name, responsible_email, negotiated_value, notes, sale_date, created_at, simulation_data, status, rejection_reason")
         .order("sale_date", { ascending: false });
       if (error) {
         toast({ title: "Erro ao carregar vendas", description: error.message, variant: "destructive" });
@@ -102,6 +134,7 @@ const AdminVendas = () => {
     const toTs = to ? new Date(to + "T23:59:59").getTime() : null;
     const list = sales.filter((s) => {
       if (q && !s.company_name.toLowerCase().includes(q) && !s.cnpj.toLowerCase().includes(q)) return false;
+      if (statusFilter !== "all" && s.status !== statusFilter) return false;
       const t = new Date(s.sale_date).getTime();
       if (fromTs !== null && t < fromTs) return false;
       if (toTs !== null && t > toTs) return false;
@@ -113,13 +146,13 @@ const AdminVendas = () => {
       return (new Date(a.sale_date).getTime() - new Date(b.sale_date).getTime()) * dir;
     });
     return list;
-  }, [sales, company, from, to, sortKey, sortDir]);
+  }, [sales, company, from, to, statusFilter, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-  useEffect(() => { setPage(1); }, [company, from, to, sortKey, sortDir]);
+  useEffect(() => { setPage(1); }, [company, from, to, statusFilter, sortKey, sortDir]);
 
   const totalFiltered = filtered.reduce((sum, s) => sum + Number(s.negotiated_value || 0), 0);
 
@@ -136,6 +169,9 @@ const AdminVendas = () => {
   const closeDetails = () => {
     setDetailSale(null);
     setNegotiatedInput("");
+    setConfirmSign(false);
+    setRejectOpen(false);
+    setRejectReason("");
   };
 
   const handleSaveNegotiated = async () => {
@@ -160,13 +196,57 @@ const AdminVendas = () => {
     toast({ title: "Valor negociado atualizado" });
   };
 
+  const applyStatus = (id: string, status: SaleStatus, rejection_reason: string | null = null) => {
+    setSales((list) => list.map((x) => (x.id === id ? { ...x, status, rejection_reason } : x)));
+    setDetailSale((s) => (s && s.id === id ? { ...s, status, rejection_reason } : s));
+  };
+
+  const handleMarkSigned = async () => {
+    if (!detailSale) return;
+    setProcessingSign(true);
+    const { error } = await supabase
+      .from("sales")
+      .update({ status: "contrato_assinado", rejection_reason: null })
+      .eq("id", detailSale.id);
+    setProcessingSign(false);
+    if (error) {
+      toast({ title: "Erro ao atualizar status", description: error.message, variant: "destructive" });
+      return;
+    }
+    applyStatus(detailSale.id, "contrato_assinado", null);
+    setConfirmSign(false);
+    toast({ title: "Contrato assinado", description: "Status atualizado com sucesso." });
+  };
+
+  const handleReject = async () => {
+    if (!detailSale) return;
+    if (!rejectReason.trim()) {
+      toast({ title: "Motivo obrigatório", description: "Descreva o motivo da rejeição.", variant: "destructive" });
+      return;
+    }
+    setProcessingReject(true);
+    const { error } = await supabase
+      .from("sales")
+      .update({ status: "rejeitado", rejection_reason: rejectReason.trim() })
+      .eq("id", detailSale.id);
+    setProcessingReject(false);
+    if (error) {
+      toast({ title: "Erro ao rejeitar", description: error.message, variant: "destructive" });
+      return;
+    }
+    applyStatus(detailSale.id, "rejeitado", rejectReason.trim());
+    setRejectOpen(false);
+    setRejectReason("");
+    toast({ title: "Venda rejeitada", description: "Status atualizado com sucesso." });
+  };
+
   const exportCSV = () => {
     if (!filtered.length) {
       toast({ title: "Nada para exportar", description: "Ajuste os filtros e tente novamente." });
       return;
     }
     const headers = [
-      "Data da venda", "Empresa", "CNPJ", "Responsável", "E-mail", "Valor negociado", "Detalhes da venda", "Registrado em",
+      "Data da venda", "Empresa", "CNPJ", "Responsável", "E-mail", "Valor negociado", "Status", "Motivo rejeição", "Detalhes da venda", "Registrado em",
     ];
     const rows = filtered.map((s) => [
       fmtDate(s.sale_date),
@@ -175,6 +255,8 @@ const AdminVendas = () => {
       s.responsible_name,
       s.responsible_email,
       String(s.negotiated_value).replace(".", ","),
+      STATUS_META[s.status].label,
+      (s.rejection_reason ?? "").replace(/\r?\n/g, " "),
       (s.notes ?? "").replace(/\r?\n/g, " "),
       fmtDate(s.created_at),
     ]);
@@ -209,6 +291,7 @@ const AdminVendas = () => {
   const simDiscountPct = sim?.first_participation_discount ?? 0;
   const simDiscountValue = sim?.discount_value ?? 0;
   const simTotal = sim?.simulated_total ?? 0;
+  const isFinalized = detailSale?.status === "contrato_assinado" || detailSale?.status === "rejeitado";
 
   return (
     <div className="min-h-screen bg-background">
@@ -250,7 +333,7 @@ const AdminVendas = () => {
           </button>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-4 bg-muted rounded-2xl p-4 border border-border">
+        <div className="grid gap-3 md:grid-cols-5 bg-muted rounded-2xl p-4 border border-border">
           <div className="md:col-span-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Empresa / CNPJ</label>
             <div className="mt-1 relative">
@@ -262,6 +345,20 @@ const AdminVendas = () => {
                 className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as "all" | SaleStatus)}
+              className="mt-1 w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="all">Todos</option>
+              <option value="em_analise">Em análise</option>
+              <option value="aguardando_assinatura">Aguardando Assinatura</option>
+              <option value="contrato_assinado">Contrato Assinado</option>
+              <option value="rejeitado">Rejeitado</option>
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">De</label>
@@ -287,6 +384,7 @@ const AdminVendas = () => {
                   <th className="px-4 py-3 font-semibold text-primary">Empresa</th>
                   <th className="px-4 py-3 font-semibold text-primary">CNPJ</th>
                   <th className="px-4 py-3 font-semibold text-primary">Responsável</th>
+                  <th className="px-4 py-3 font-semibold text-primary">Status</th>
                   <th className="px-4 py-3 font-semibold text-primary text-right">
                     <button onClick={() => toggleSort("negotiated_value")} className="inline-flex items-center gap-1 hover:opacity-80">
                       Valor <ArrowUpDown className="w-3.5 h-3.5" />
@@ -298,7 +396,7 @@ const AdminVendas = () => {
               </thead>
               <tbody>
                 {pageItems.length === 0 ? (
-                  <tr><td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
+                  <tr><td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">Nenhuma venda encontrada.</td></tr>
                 ) : pageItems.map((s) => (
                   <tr key={s.id} className="border-t border-border hover:bg-muted/50">
                     <td className="px-4 py-3 whitespace-nowrap">{fmtDate(s.sale_date)}</td>
@@ -307,6 +405,11 @@ const AdminVendas = () => {
                     <td className="px-4 py-3">
                       <div>{s.responsible_name}</div>
                       <div className="text-xs text-muted-foreground">{s.responsible_email}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${STATUS_META[s.status].badge}`}>
+                        {STATUS_META[s.status].label}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-right font-semibold text-primary whitespace-nowrap">{currency(Number(s.negotiated_value))}</td>
                     <td className="px-4 py-3 text-right">
@@ -350,7 +453,12 @@ const AdminVendas = () => {
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-white z-10">
               <div>
-                <h2 className="text-lg font-bold text-primary">Detalhes da venda</h2>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h2 className="text-lg font-bold text-primary">Detalhes da venda</h2>
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${STATUS_META[detailSale.status].badge}`}>
+                    {STATUS_META[detailSale.status].label}
+                  </span>
+                </div>
                 <p className="text-xs text-muted-foreground">Registrado em {fmtDate(detailSale.created_at)}</p>
               </div>
               <button onClick={closeDetails} className="p-2 rounded-full hover:bg-muted transition-colors" aria-label="Fechar">
@@ -359,7 +467,6 @@ const AdminVendas = () => {
             </div>
 
             <div className="p-6 space-y-6">
-              {/* Dados do cliente */}
               <section>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Dados do cliente</h3>
                 <div className="grid sm:grid-cols-2 gap-3 text-sm">
@@ -386,7 +493,6 @@ const AdminVendas = () => {
                 </div>
               </section>
 
-              {/* Stands */}
               <section>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Stands selecionados</h3>
                 {simStands.length === 0 ? (
@@ -406,7 +512,6 @@ const AdminVendas = () => {
                 )}
               </section>
 
-              {/* Eventos */}
               <section>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Eventos adicionais</h3>
                 {simEventos.length === 0 ? (
@@ -423,7 +528,6 @@ const AdminVendas = () => {
                 )}
               </section>
 
-              {/* Desconto */}
               {simDiscountValue > 0 && (
                 <section>
                   <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Desconto aplicado</h3>
@@ -434,7 +538,6 @@ const AdminVendas = () => {
                 </section>
               )}
 
-              {/* Detalhes da venda (notes) */}
               <section>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Detalhes da venda</h3>
                 <div className="bg-muted rounded-lg p-4 text-sm text-foreground whitespace-pre-wrap min-h-[3rem]">
@@ -442,7 +545,15 @@ const AdminVendas = () => {
                 </div>
               </section>
 
-              {/* Totais */}
+              {detailSale.status === "rejeitado" && detailSale.rejection_reason && (
+                <section>
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Motivo da rejeição</h3>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-900 whitespace-pre-wrap">
+                    {detailSale.rejection_reason}
+                  </div>
+                </section>
+              )}
+
               <section className="border-t border-border pt-5 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
@@ -489,6 +600,97 @@ const AdminVendas = () => {
                   </p>
                 </div>
               </section>
+
+              {/* Ações de status */}
+              <section className="border-t border-border pt-5">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Ações do registro</h3>
+                {isFinalized ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    Este registro já está finalizado como <strong>{STATUS_META[detailSale.status].label}</strong> e não permite mais alterações de status.
+                  </p>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={() => setConfirmSign(true)}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
+                    >
+                      <CheckCircle2 className="w-4 h-4" /> Marcar como Contrato Assinado
+                    </button>
+                    <button
+                      onClick={() => setRejectOpen(true)}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors"
+                    >
+                      <Ban className="w-4 h-4" /> Rejeitar
+                    </button>
+                  </div>
+                )}
+              </section>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmação Contrato Assinado */}
+      {confirmSign && detailSale && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => !processingSign && setConfirmSign(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 className="text-lg font-bold text-primary mb-2">Confirmar Contrato Assinado</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Tem certeza que deseja alterar o status desta venda para <strong>Contrato Assinado</strong>? Esta ação finaliza o registro.
+            </p>
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
+              <button
+                onClick={() => setConfirmSign(false)}
+                disabled={processingSign}
+                className="px-4 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleMarkSigned}
+                disabled={processingSign}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-60"
+              >
+                {processingSign && <Loader2 className="w-4 h-4 animate-spin" />}
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rejeição */}
+      {rejectOpen && detailSale && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => !processingReject && setRejectOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 className="text-lg font-bold text-primary mb-2">Rejeitar venda</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Tem certeza que deseja alterar o status para <strong>Rejeitado</strong>? Informe abaixo o motivo da rejeição — essa informação ficará registrada nos detalhes da venda.
+            </p>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Motivo da rejeição *</label>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              rows={4}
+              placeholder="Descreva o motivo..."
+              className="mt-1 w-full px-3 py-2.5 rounded-lg bg-white border border-border text-sm focus:outline-none focus:ring-2 focus:ring-red-500/30 resize-none"
+            />
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 mt-6">
+              <button
+                onClick={() => setRejectOpen(false)}
+                disabled={processingReject}
+                className="px-4 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={processingReject}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-60"
+              >
+                {processingReject && <Loader2 className="w-4 h-4 animate-spin" />}
+                Confirmar rejeição
+              </button>
             </div>
           </div>
         </div>
