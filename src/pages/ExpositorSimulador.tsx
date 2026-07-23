@@ -768,6 +768,13 @@ const ExpositorSimulador = () => {
                   <p className="text-foreground/40 text-xs text-center mt-3">
                     A venda será registrada no sistema para acompanhamento interno.
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => { setCancelReason(""); setCancelOpen(true); }}
+                    className="mt-3 w-full text-center text-sm text-foreground/60 hover:text-destructive underline underline-offset-4 transition-colors"
+                  >
+                    Cancelar simulação
+                  </button>
                 </>
               ) : (
                 <>
