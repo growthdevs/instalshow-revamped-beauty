@@ -16,6 +16,7 @@ import {
   Gift,
   KeyRound,
   Search,
+  XCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -96,6 +97,11 @@ const ExpositorSimulador = () => {
   const [lookupCode, setLookupCode] = useState("");
   const [loadingCode, setLoadingCode] = useState(false);
   const [loadedCode, setLoadedCode] = useState<string | null>(null);
+
+  // Admin: cancelamento de simulação
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
 
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
@@ -762,6 +768,13 @@ const ExpositorSimulador = () => {
                   <p className="text-foreground/40 text-xs text-center mt-3">
                     A venda será registrada no sistema para acompanhamento interno.
                   </p>
+                  <button
+                    type="button"
+                    onClick={() => { setCancelReason(""); setCancelOpen(true); }}
+                    className="mt-3 w-full text-center text-sm text-foreground/60 hover:text-destructive underline underline-offset-4 transition-colors"
+                  >
+                    Cancelar simulação
+                  </button>
                 </>
               ) : (
                 <>
@@ -930,6 +943,105 @@ const ExpositorSimulador = () => {
                 </button>
               </div>
             </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Modal Cancelar simulação (admin) */}
+      {cancelOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => !cancelling && setCancelOpen(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-card border border-border rounded-2xl w-full max-w-lg p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center">
+                  <XCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Cancelar simulação</h3>
+                  <p className="text-xs text-foreground/60">Esta ação encerra a análise desta simulação.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => !cancelling && setCancelOpen(false)}
+                className="text-foreground/50 hover:text-foreground transition-colors"
+                aria-label="Fechar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-sm text-foreground/70 mb-4">
+              Ao confirmar, a simulação{loadedCode ? <> <span className="font-mono font-semibold">{loadedCode}</span></> : null} será
+              descartada do painel atual e os dados carregados serão limpos. O motivo informado abaixo ficará registrado
+              para acompanhamento interno.
+            </p>
+
+            <label className="block">
+              <span className="text-sm text-foreground/80">Motivo do cancelamento *</span>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                rows={4}
+                placeholder="Descreva o motivo do cancelamento desta simulação..."
+                className="mt-1 w-full bg-background border border-border rounded-lg px-3 py-2.5 text-foreground focus:outline-none focus:border-primary transition-colors resize-none"
+              />
+            </label>
+
+            <div className="flex gap-3 pt-5">
+              <button
+                type="button"
+                onClick={() => setCancelOpen(false)}
+                disabled={cancelling}
+                className="flex-1 py-3 rounded-xl bg-muted border border-border text-foreground/80 hover:bg-muted/70 transition-colors"
+              >
+                Sair sem cancelar
+              </button>
+              <button
+                type="button"
+                disabled={cancelling || cancelReason.trim().length < 3}
+                onClick={() => {
+                  setCancelling(true);
+                  const reason = cancelReason.trim();
+                  const code = loadedCode;
+                  // Reset simulator state
+                  setQtd({ bronze: 0, prata: 0, ouro: 0 });
+                  setEventos({});
+                  setDesiredStands("");
+                  setPrimeira(false);
+                  setLoadedCode(null);
+                  setLookupCode("");
+                  setSaleForm({
+                    company_name: "",
+                    cnpj: "",
+                    responsible_name: "",
+                    responsible_email: "",
+                    negotiated_value: "",
+                    notes: "",
+                    sale_date: "",
+                  });
+                  setCancelOpen(false);
+                  setCancelling(false);
+                  setCancelReason("");
+                  toast({
+                    title: "Simulação cancelada",
+                    description: code
+                      ? `Código ${code} cancelado. Motivo: ${reason}`
+                      : `Motivo: ${reason}`,
+                  });
+                }}
+                className="flex-1 py-3 rounded-xl bg-destructive hover:bg-destructive/90 text-white font-semibold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {cancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : <><XCircle className="w-4 h-4" /> Confirmar cancelamento</>}
+              </button>
+            </div>
           </motion.div>
         </div>
       )}
