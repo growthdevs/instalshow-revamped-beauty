@@ -979,9 +979,9 @@ const ExpositorSimulador = () => {
             </div>
 
             <p className="text-sm text-foreground/70 mb-4">
-              Ao confirmar, a simulação{loadedCode ? <> <span className="font-mono font-semibold">{loadedCode}</span></> : null} será
-              descartada do painel atual e os dados carregados serão limpos. O motivo informado abaixo ficará registrado
-              para acompanhamento interno.
+              Ao confirmar, o registro desta venda{loadedCode ? <> <span className="font-mono font-semibold">{loadedCode}</span></> : null} terá
+              o status alterado para <span className="font-semibold text-destructive">rejeitado</span>. Os dados carregados serão limpos e o
+              motivo informado abaixo ficará registrado para acompanhamento interno.
             </p>
 
             <label className="block">
@@ -1037,9 +1037,9 @@ const ExpositorSimulador = () => {
                       : `Motivo: ${reason}`,
                   });
                 }}
-                className="flex-1 py-3 rounded-xl bg-destructive hover:bg-destructive/90 text-white font-semibold transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                className="flex-1 py-3 rounded-xl bg-destructive hover:bg-destructive/90 text-white font-semibold transition-colors disabled:opacity-60 flex items-center justify-center"
               >
-                {cancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : <><XCircle className="w-4 h-4" /> Confirmar cancelamento</>}
+                {cancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirmar cancelamento"}
               </button>
             </div>
           </motion.div>
