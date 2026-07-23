@@ -17,7 +17,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import logoInstalshow from "@/assets/logo-instalshow.svg";
-import mapaEvento from "@/assets/mapa-evento.jpg";
+import mapaEvento from "@/assets/mapa-instal.jpeg.asset.json";
 
 const WHATSAPP_NUMBER = "5511963830660";
 
@@ -85,6 +85,7 @@ const ExpositorSimulador = () => {
     ouro: 0,
   });
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
+  const [desiredStands, setDesiredStands] = useState("");
 
   // Admin sale modal
   const [saleOpen, setSaleOpen] = useState(false);
