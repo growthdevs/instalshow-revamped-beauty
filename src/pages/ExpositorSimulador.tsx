@@ -17,6 +17,7 @@ import {
   KeyRound,
   Search,
   XCircle,
+  ChevronDown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -54,18 +55,28 @@ const STANDS = [
   },
 ] as const;
 
-const EVENTOS_ADICIONAIS = [
+type EventoAdicional = {
+  id: string;
+  name: string;
+  price: number;
+  subtitle: string;
+  details?: string;
+};
+
+const EVENTOS_ADICIONAIS: readonly EventoAdicional[] = [
   {
-    id: "palestra-1",
-    name: "Palestra Patrocinada — Auditório Principal",
-    price: 6500,
-    desc: "40 minutos no palco principal, com divulgação na grade oficial.",
+    id: "encontro-instaladoras",
+    name: "3º Encontro das Instaladoras - Outubro de 2026",
+    price: 8000,
+    subtitle: "Investimento padrão (Primeira vez no Instal Show)",
   },
   {
-    id: "palestra-2",
-    name: "Palestra Técnica — Sala de Workshops",
-    price: 3800,
-    desc: "30 minutos de conteúdo técnico em sala reservada.",
+    id: "instalshow-goiania",
+    name: "Benefício exclusivo para expositores da 3ª edição do INSTAL SHOW",
+    price: 3500,
+    subtitle: "1ª Edição – INSTAL SHOW GOIÂNIA | Março de 2027",
+    details:
+      "A expansão do INSTAL SHOW chega ao Centro-Oeste com sua primeira edição em Goiânia. O evento levará o mesmo conceito de sucesso da feira nacional, reunindo grandes marcas, especialistas e profissionais em uma experiência focada em inovação, produtividade, capacitação técnica e networking para os setores de instalações elétricas, hidráulicas, combate a incêndio e HVAC.\n\nEsses três eventos reforçam o propósito do INSTAL SHOW de conectar toda a cadeia do setor de instalações, promovendo conhecimento, relacionamento e negócios ao longo de todo o ano.\n\n⭐ Benefício Exclusivo: A contratação de dois ou mais eventos proporciona descontos progressivos, aumentando a visibilidade da sua marca e reduzindo o investimento individual em cada participação.",
   },
 ] as const;
 
@@ -90,6 +101,7 @@ const ExpositorSimulador = () => {
     ouro: 0,
   });
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
+  const [expandedEventos, setExpandedEventos] = useState<Record<string, boolean>>({});
   const [desiredStands, setDesiredStands] = useState("");
   const [primeira, setPrimeira] = useState(false);
 
@@ -651,31 +663,58 @@ const ExpositorSimulador = () => {
               <div className="space-y-3">
                 {EVENTOS_ADICIONAIS.map((e) => {
                   const active = !!eventos[e.id];
+                  const expanded = !!expandedEventos[e.id];
                   return (
-                    <label
+                    <div
                       key={e.id}
-                      className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                      className={`rounded-xl border transition-all ${
                         active
                           ? "bg-accent/5 border-accent/40"
                           : "bg-muted/30 border-border hover:border-foreground/20"
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={active}
-                        onChange={(ev) =>
-                          setEventos((s) => ({ ...s, [e.id]: ev.target.checked }))
-                        }
-                        className="w-5 h-5 accent-primary"
-                      />
-                      <div className="flex-1">
-                      <div className="text-foreground font-medium">{e.name}</div>
-                        <div className="text-foreground/50 text-sm">{e.desc}</div>
-                      </div>
-                      <div className="text-foreground font-semibold whitespace-nowrap">
-                        {currency(e.price)}
-                      </div>
-                    </label>
+                      <label className="flex items-start gap-4 p-4 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={active}
+                          onChange={(ev) =>
+                            setEventos((s) => ({ ...s, [e.id]: ev.target.checked }))
+                          }
+                          className="w-5 h-5 accent-primary mt-0.5"
+                        />
+                        <div className="flex-1">
+                          <div className="text-foreground font-medium">{e.name}</div>
+                          {e.details ? (
+                            <button
+                              type="button"
+                              onClick={(ev) => {
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                setExpandedEventos((s) => ({ ...s, [e.id]: !s[e.id] }));
+                              }}
+                              className="mt-1 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                            >
+                              {e.subtitle}
+                              <ChevronDown
+                                className={`w-4 h-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+                              />
+                            </button>
+                          ) : (
+                            <div className="text-foreground/60 text-sm mt-0.5">{e.subtitle}</div>
+                          )}
+                        </div>
+                        <div className="text-foreground font-semibold whitespace-nowrap">
+                          {currency(e.price)}
+                        </div>
+                      </label>
+                      {e.details && expanded && (
+                        <div className="px-4 pb-4 pt-0 -mt-1">
+                          <div className="rounded-lg bg-background/60 border border-border p-4 text-sm text-foreground/70 whitespace-pre-line">
+                            {e.details}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
