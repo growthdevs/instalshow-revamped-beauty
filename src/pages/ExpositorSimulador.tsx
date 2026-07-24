@@ -662,31 +662,58 @@ const ExpositorSimulador = () => {
               <div className="space-y-3">
                 {EVENTOS_ADICIONAIS.map((e) => {
                   const active = !!eventos[e.id];
+                  const expanded = !!expandedEventos[e.id];
                   return (
-                    <label
+                    <div
                       key={e.id}
-                      className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                      className={`rounded-xl border transition-all ${
                         active
                           ? "bg-accent/5 border-accent/40"
                           : "bg-muted/30 border-border hover:border-foreground/20"
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={active}
-                        onChange={(ev) =>
-                          setEventos((s) => ({ ...s, [e.id]: ev.target.checked }))
-                        }
-                        className="w-5 h-5 accent-primary"
-                      />
-                      <div className="flex-1">
-                      <div className="text-foreground font-medium">{e.name}</div>
-                        <div className="text-foreground/50 text-sm">{e.desc}</div>
-                      </div>
-                      <div className="text-foreground font-semibold whitespace-nowrap">
-                        {currency(e.price)}
-                      </div>
-                    </label>
+                      <label className="flex items-start gap-4 p-4 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={active}
+                          onChange={(ev) =>
+                            setEventos((s) => ({ ...s, [e.id]: ev.target.checked }))
+                          }
+                          className="w-5 h-5 accent-primary mt-0.5"
+                        />
+                        <div className="flex-1">
+                          <div className="text-foreground font-medium">{e.name}</div>
+                          {e.details ? (
+                            <button
+                              type="button"
+                              onClick={(ev) => {
+                                ev.preventDefault();
+                                ev.stopPropagation();
+                                setExpandedEventos((s) => ({ ...s, [e.id]: !s[e.id] }));
+                              }}
+                              className="mt-1 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                            >
+                              {e.subtitle}
+                              <ChevronDown
+                                className={`w-4 h-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+                              />
+                            </button>
+                          ) : (
+                            <div className="text-foreground/60 text-sm mt-0.5">{e.subtitle}</div>
+                          )}
+                        </div>
+                        <div className="text-foreground font-semibold whitespace-nowrap">
+                          {currency(e.price)}
+                        </div>
+                      </label>
+                      {e.details && expanded && (
+                        <div className="px-4 pb-4 pt-0 -mt-1">
+                          <div className="rounded-lg bg-background/60 border border-border p-4 text-sm text-foreground/70 whitespace-pre-line">
+                            {e.details}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
