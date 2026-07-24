@@ -101,6 +101,7 @@ const ExpositorSimulador = () => {
     ouro: 0,
   });
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
+  const [expandedEventos, setExpandedEventos] = useState<Record<string, boolean>>({});
   const [desiredStands, setDesiredStands] = useState("");
   const [primeira, setPrimeira] = useState(false);
 
