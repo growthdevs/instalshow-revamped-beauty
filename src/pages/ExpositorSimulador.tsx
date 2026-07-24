@@ -54,18 +54,28 @@ const STANDS = [
   },
 ] as const;
 
-const EVENTOS_ADICIONAIS = [
+type EventoAdicional = {
+  id: string;
+  name: string;
+  price: number;
+  subtitle: string;
+  details?: string;
+};
+
+const EVENTOS_ADICIONAIS: readonly EventoAdicional[] = [
   {
-    id: "palestra-1",
-    name: "Palestra Patrocinada — Auditório Principal",
-    price: 6500,
-    desc: "40 minutos no palco principal, com divulgação na grade oficial.",
+    id: "encontro-instaladoras",
+    name: "3º Encontro das Instaladoras - Outubro de 2026",
+    price: 8000,
+    subtitle: "Investimento padrão (Primeira vez no Instal Show)",
   },
   {
-    id: "palestra-2",
-    name: "Palestra Técnica — Sala de Workshops",
-    price: 3800,
-    desc: "30 minutos de conteúdo técnico em sala reservada.",
+    id: "instalshow-goiania",
+    name: "Benefício exclusivo para expositores da 3ª edição do INSTAL SHOW",
+    price: 3500,
+    subtitle: "1ª Edição – INSTAL SHOW GOIÂNIA | Março de 2027",
+    details:
+      "A expansão do INSTAL SHOW chega ao Centro-Oeste com sua primeira edição em Goiânia. O evento levará o mesmo conceito de sucesso da feira nacional, reunindo grandes marcas, especialistas e profissionais em uma experiência focada em inovação, produtividade, capacitação técnica e networking para os setores de instalações elétricas, hidráulicas, combate a incêndio e HVAC.\n\nEsses três eventos reforçam o propósito do INSTAL SHOW de conectar toda a cadeia do setor de instalações, promovendo conhecimento, relacionamento e negócios ao longo de todo o ano.\n\n⭐ Benefício Exclusivo: A contratação de dois ou mais eventos proporciona descontos progressivos, aumentando a visibilidade da sua marca e reduzindo o investimento individual em cada participação.",
   },
 ] as const;
 
