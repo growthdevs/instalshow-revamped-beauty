@@ -18,11 +18,6 @@ const getInitials = (name: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-const getFirstName = (name: string) => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  return parts[0] || "";
-};
-
 interface UserMenuProps {
   /** Exibe o item "Meus dados" (área do expositor) */
   showMeusDados?: boolean;
