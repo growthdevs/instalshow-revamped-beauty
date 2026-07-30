@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import UserMenu from "@/components/UserMenu";
 import {
   ArrowLeft,
   LayoutDashboard,
@@ -122,9 +123,7 @@ const AdminParametros = () => {
             <Link to="/expositor/simulador" className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Simulador
             </Link>
-            <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
-              <LogOut className="w-4 h-4" /> Sair
-            </button>
+            <UserMenu showMeusDados={false} />
           </div>
         </div>
       </header>

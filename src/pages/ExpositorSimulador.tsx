@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import UserMenu from "@/components/UserMenu";
 import { motion } from "framer-motion";
 import {
   LogOut,
