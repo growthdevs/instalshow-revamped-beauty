@@ -11,6 +11,8 @@ import ExpositorDashboard from "./pages/ExpositorDashboard";
 import ExpositorSimulador from "./pages/ExpositorSimulador";
 import AdminVendas from "./pages/AdminVendas";
 import AdminUsuarios from "./pages/AdminUsuarios";
+import AdminParametros from "./pages/AdminParametros";
+import AdminExpositores from "./pages/AdminExpositores";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/expositor/simulador" element={<ExpositorSimulador />} />
           <Route path="/admin/vendas" element={<AdminVendas />} />
           <Route path="/admin/administradores" element={<AdminUsuarios />} />
+          <Route path="/admin/parametros" element={<AdminParametros />} />
+          <Route path="/admin/expositores" element={<AdminExpositores />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
 

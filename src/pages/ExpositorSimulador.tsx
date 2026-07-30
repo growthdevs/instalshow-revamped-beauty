@@ -18,6 +18,8 @@ import {
   Search,
   XCircle,
   ChevronDown,
+  SlidersHorizontal,
+  Building2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -25,35 +27,41 @@ import logoInstalshow from "@/assets/logo-instalshow.svg";
 
 const WHATSAPP_NUMBER = "5511963830660";
 
-const STANDS = [
+type Stand = {
+  id: string;
+  name: string;
+  price: number;
+  desc: string;
+};
+
+const STAND_STYLES: Record<string, { color: string; ring: string; dot: string }> = {
+  bronze: { color: "from-amber-700 to-amber-500", ring: "ring-amber-600/40", dot: "bg-amber-600" },
+  prata: { color: "from-slate-800 to-slate-500", ring: "ring-slate-600/50", dot: "bg-slate-600" },
+  ouro: { color: "from-yellow-500 to-yellow-300", ring: "ring-yellow-500/50", dot: "bg-yellow-500" },
+};
+const styleOf = (id: string) =>
+  STAND_STYLES[id] ?? { color: "from-primary to-primary/60", ring: "ring-primary/30", dot: "bg-primary" };
+
+const DEFAULT_STANDS: Stand[] = [
   {
     id: "bronze",
     name: "Bronze",
     price: 8500,
-    color: "from-amber-700 to-amber-500",
-    ring: "ring-amber-600/40",
-    dot: "bg-amber-600",
     desc: "Localização periférica, ótimo custo-benefício.",
   },
   {
     id: "prata",
     name: "Prata",
     price: 12500,
-    color: "from-slate-800 to-slate-500",
-    ring: "ring-slate-600/50",
-    dot: "bg-slate-600",
     desc: "Posição intermediária, alto fluxo de público.",
   },
   {
     id: "ouro",
     name: "Ouro",
     price: 18500,
-    color: "from-yellow-500 to-yellow-300",
-    ring: "ring-yellow-500/50",
-    dot: "bg-yellow-500",
     desc: "Área nobre, ao centro e próxima ao palco.",
   },
-] as const;
+];
 
 type EventoAdicional = {
   id: string;
@@ -94,6 +102,12 @@ const ExpositorSimulador = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const [stands, setStands] = useState<Stand[]>(DEFAULT_STANDS);
+  const [standsTitle, setStandsTitle] = useState("Seleção de stands");
+  const [standsSubtitle, setStandsSubtitle] = useState(
+    "Tamanhos e disposição finais são alinhados pela equipe comercial.",
+  );
 
   const [qtd, setQtd] = useState<Record<string, number>>({
     bronze: 0,
@@ -150,6 +164,25 @@ const ExpositorSimulador = () => {
         prof ?? { company_name: "-", cnpj: "-", email: userRes.user.email ?? "-" },
       );
       setIsAdmin(!!roles?.some((r) => r.role === "admin"));
+
+      const [{ data: sp }, { data: settings }] = await Promise.all([
+        supabase.from("stand_parameters").select("*").order("sort_order"),
+        supabase.from("simulator_settings").select("*").eq("id", "stands").maybeSingle(),
+      ]);
+      if (sp?.length) {
+        setStands(
+          sp.map((r) => ({
+            id: r.id,
+            name: r.name,
+            price: Number(r.price),
+            desc: r.description ?? "",
+          })),
+        );
+      }
+      if (settings) {
+        if (settings.title) setStandsTitle(settings.title);
+        if (settings.subtitle) setStandsSubtitle(settings.subtitle);
+      }
       setLoading(false);
     };
     init();
@@ -220,8 +253,8 @@ const ExpositorSimulador = () => {
   };
 
   const subtotalStands = useMemo(
-    () => STANDS.reduce((sum, s) => sum + s.price * (qtd[s.id] || 0), 0),
-    [qtd],
+    () => stands.reduce((sum, s) => sum + s.price * (qtd[s.id] || 0), 0),
+    [qtd, stands],
   );
   const subtotalEventos = useMemo(
     () =>
@@ -252,7 +285,7 @@ const ExpositorSimulador = () => {
 
     // Persist a pending simulation with a 6-char code for the admin to retrieve later
     const simulation_data = {
-      stands: STANDS.filter((s) => (qtd[s.id] || 0) > 0).map((s) => ({
+      stands: stands.filter((s) => (qtd[s.id] || 0) > 0).map((s) => ({
         id: s.id,
         name: s.name,
         quantity: qtd[s.id],
@@ -304,7 +337,7 @@ const ExpositorSimulador = () => {
     linhas.push(`*E-mail:* ${profile?.email ?? "-"}`);
     linhas.push("");
     linhas.push("*Stands selecionados:*");
-    STANDS.forEach((s) => {
+    stands.forEach((s) => {
       const q = qtd[s.id] || 0;
       if (q > 0)
         linhas.push(`• ${q}x Stand ${s.name} — ${currency(s.price * q)}`);
@@ -392,7 +425,7 @@ const ExpositorSimulador = () => {
     }
 
     const simulation_data = {
-      stands: STANDS.filter((s) => (qtd[s.id] || 0) > 0).map((s) => ({
+      stands: stands.filter((s) => (qtd[s.id] || 0) > 0).map((s) => ({
         id: s.id,
         name: s.name,
         quantity: qtd[s.id],
@@ -487,7 +520,20 @@ const ExpositorSimulador = () => {
                 >
                   <ShieldCheck className="w-4 h-4" /> Administradores
                 </Link>
+                <Link
+                  to="/admin/parametros"
+                  className="hidden lg:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <SlidersHorizontal className="w-4 h-4" /> Parâmetros
+                </Link>
+                <Link
+                  to="/admin/expositores"
+                  className="hidden lg:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <Building2 className="w-4 h-4" /> Expositores
+                </Link>
               </>
+
             )}
             {!isAdmin && (
               <Link
@@ -586,19 +632,19 @@ const ExpositorSimulador = () => {
             {/* Stands */}
             <section className="bg-muted border border-border rounded-2xl p-5 lg:p-6 shadow-sm">
               <h2 className="text-foreground font-semibold mb-1">
-                Seleção de stands
+                {standsTitle}
               </h2>
               <p className="text-foreground/50 text-sm mb-5">
-                Tamanhos e disposição finais são alinhados pela equipe comercial.
+                {standsSubtitle}
               </p>
               <div className="grid sm:grid-cols-3 gap-4">
-                {STANDS.map((s) => (
+                {stands.map((s) => (
                   <div
                     key={s.id}
-                    className={`relative bg-white border border-foreground/25 rounded-xl p-4 flex flex-col ring-2 ${s.ring}`}
+                    className={`relative bg-white border border-foreground/25 rounded-xl p-4 flex flex-col ring-2 ${styleOf(s.id).ring}`}
                   >
                     <div
-                      className={`h-2.5 w-14 rounded-full bg-gradient-to-r ${s.color} mb-3 shadow-sm ring-1 ring-black/5`}
+                      className={`h-2.5 w-14 rounded-full bg-gradient-to-r ${styleOf(s.id).color} mb-3 shadow-sm ring-1 ring-black/5`}
                     />
                     <div className="text-foreground font-semibold text-lg">
                       Stand {s.name}
@@ -757,13 +803,13 @@ const ExpositorSimulador = () => {
               </h2>
 
               <div className="space-y-3 mb-5">
-                {STANDS.map((s) => {
+                {stands.map((s) => {
                   const q = qtd[s.id] || 0;
                   if (!q) return null;
                   return (
                     <div key={s.id} className="flex justify-between text-sm">
                       <span className="text-foreground/70 flex items-center gap-2">
-                        <span className={`w-2.5 h-2.5 rounded-full ${s.dot} ring-1 ring-black/10`} />
+                        <span className={`w-2.5 h-2.5 rounded-full ${styleOf(s.id).dot} ring-1 ring-black/10`} />
                         {q}x Stand {s.name}
                       </span>
                       <span className="text-foreground font-medium">
