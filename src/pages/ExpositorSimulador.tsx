@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import UserMenu from "@/components/UserMenu";
 import { motion } from "framer-motion";
 import {
   LogOut,
@@ -535,21 +536,7 @@ const ExpositorSimulador = () => {
               </>
 
             )}
-            {!isAdmin && (
-              <Link
-                to="/expositor/dashboard"
-                className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
-              >
-                <LayoutDashboard className="w-4 h-4" /> Meus dados
-              </Link>
-            )}
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors"
-            >
-              <LogOut className="w-4 h-4" /> Sair
-            </button>
+            <UserMenu showMeusDados={!isAdmin} />
           </div>
         </div>
       </header>
