@@ -18,11 +18,6 @@ const getInitials = (name: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-const getFirstName = (name: string) => {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  return parts[0] || "";
-};
-
 interface UserMenuProps {
   /** Exibe o item "Meus dados" (área do expositor) */
   showMeusDados?: boolean;
@@ -61,7 +56,6 @@ const UserMenu = ({ showMeusDados = true, variant = "dark" }: UserMenuProps) => 
   };
 
   const isDark = variant === "dark";
-  const firstName = getFirstName(name);
 
   return (
     <DropdownMenu>
@@ -69,9 +63,9 @@ const UserMenu = ({ showMeusDados = true, variant = "dark" }: UserMenuProps) => 
         <button
           aria-label="Menu do usuário"
           className={`
-            group flex flex-col items-center justify-center gap-0.5
-            px-3 py-1 rounded-2xl border shadow-sm transition-all duration-200
-            hover:scale-[1.03] active:scale-[0.97]
+            group flex items-center gap-2.5
+            pl-1.5 pr-3 py-1.5 rounded-full border shadow-sm transition-all duration-200
+            hover:scale-[1.02] active:scale-[0.98]
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#052851]
             ${
               isDark
@@ -80,30 +74,28 @@ const UserMenu = ({ showMeusDados = true, variant = "dark" }: UserMenuProps) => 
             }
           `}
         >
-          <div className="flex items-center gap-1">
-            <span
-              className={`
-                flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-bold tracking-wide
-                ${isDark ? "bg-white/20 text-white" : "bg-[#052851] text-white"}
-              `}
-            >
-              {getInitials(name || "?")}
+          <span
+            className={`
+              flex items-center justify-center w-9 h-9 rounded-full text-sm font-bold tracking-wide shrink-0
+              ${isDark ? "bg-white/20 text-white" : "bg-[#052851] text-white"}
+            `}
+          >
+            {getInitials(name || "?")}
+          </span>
+          <div className="flex flex-col items-start leading-tight min-w-0">
+            <span className={`text-sm font-semibold truncate max-w-[140px] ${isDark ? "text-white" : "text-[#052851]"}`}>
+              {name || "Usuário"}
             </span>
-            <ChevronDown
-              className={`
-                w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180
-                ${isDark ? "text-white/70" : "text-[#052851]/70"}
-              `}
-            />
-          </div>
-          <div className="text-center leading-none">
-            <span className={`block text-[9px] font-medium ${isDark ? "text-white/60" : "text-[#052851]/60"}`}>
+            <span className={`text-[11px] font-medium ${isDark ? "text-white/60" : "text-[#052851]/60"}`}>
               Bem-vindo
             </span>
-            <span className={`block text-[11px] font-semibold truncate max-w-[100px] ${isDark ? "text-white" : "text-[#052851]"}`}>
-              {firstName || "Usuário"}
-            </span>
           </div>
+          <ChevronDown
+            className={`
+              w-4 h-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180
+              ${isDark ? "text-white/60" : "text-[#052851]/60"}
+            `}
+          />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
