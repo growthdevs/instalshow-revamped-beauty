@@ -56,7 +56,6 @@ const UserMenu = ({ showMeusDados = true, variant = "dark" }: UserMenuProps) => 
   };
 
   const isDark = variant === "dark";
-  const firstName = getFirstName(name);
 
   return (
     <DropdownMenu>
