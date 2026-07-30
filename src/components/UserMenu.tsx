@@ -70,20 +70,20 @@ const UserMenu = ({ showMeusDados = true, variant = "dark" }: UserMenuProps) => 
           aria-label="Menu do usuário"
           className={`
             group flex flex-col items-center justify-center gap-0.5
-            px-3 py-2 rounded-2xl border transition-all duration-200
-            hover:scale-[1.02] active:scale-[0.98]
+            px-3 py-1 rounded-2xl border shadow-sm transition-all duration-200
+            hover:scale-[1.03] active:scale-[0.97]
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#052851]
             ${
               isDark
-                ? "bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40 focus:ring-white/40"
-                : "bg-[#052851]/5 border-[#052851]/10 text-[#052851] hover:bg-[#052851]/10 hover:border-[#052851]/30 focus:ring-[#052851]/30"
+                ? "bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/50 hover:shadow-white/10 focus:ring-white/40"
+                : "bg-[#052851]/5 border-[#052851]/10 text-[#052851] hover:bg-[#052851]/10 hover:border-[#052851]/30 hover:shadow-[#052851]/10 focus:ring-[#052851]/30"
             }
           `}
         >
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <span
               className={`
-                flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold tracking-wide
+                flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-bold tracking-wide
                 ${isDark ? "bg-white/20 text-white" : "bg-[#052851] text-white"}
               `}
             >
@@ -91,16 +91,16 @@ const UserMenu = ({ showMeusDados = true, variant = "dark" }: UserMenuProps) => 
             </span>
             <ChevronDown
               className={`
-                w-3.5 h-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180
+                w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180
                 ${isDark ? "text-white/70" : "text-[#052851]/70"}
               `}
             />
           </div>
-          <div className="text-center leading-tight">
-            <span className={`block text-[10px] font-medium ${isDark ? "text-white/70" : "text-[#052851]/70"}`}>
+          <div className="text-center leading-none">
+            <span className={`block text-[9px] font-medium ${isDark ? "text-white/60" : "text-[#052851]/60"}`}>
               Bem-vindo
             </span>
-            <span className={`block text-xs font-semibold truncate max-w-[110px] ${isDark ? "text-white" : "text-[#052851]"}`}>
+            <span className={`block text-[11px] font-semibold truncate max-w-[100px] ${isDark ? "text-white" : "text-[#052851]"}`}>
               {firstName || "Usuário"}
             </span>
           </div>
