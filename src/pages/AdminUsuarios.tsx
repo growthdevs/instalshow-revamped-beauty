@@ -212,6 +212,12 @@ const AdminUsuarios = () => {
             <Link to="/admin/vendas" className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
               <LayoutDashboard className="w-4 h-4" /> Relatório
             </Link>
+            <Link to="/admin/parametros" className="hidden lg:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
+              Parâmetros
+            </Link>
+            <Link to="/admin/expositores" className="hidden lg:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
+              Expositores
+            </Link>
             <Link to="/expositor/simulador" className="hidden sm:flex items-center gap-2 text-sm text-white/80 hover:text-white px-4 py-2 rounded-full hover:bg-white/10 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Simulador
             </Link>
