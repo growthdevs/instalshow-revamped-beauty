@@ -27,8 +27,6 @@ const AdminParametros = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [rows, setRows] = useState<StandRow[]>([]);
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -46,10 +44,7 @@ const AdminParametros = () => {
         navigate("/expositor/simulador");
         return;
       }
-      const [{ data: sp }, { data: settings }] = await Promise.all([
-        supabase.from("stand_parameters").select("*").order("sort_order"),
-        supabase.from("simulator_settings").select("*").eq("id", "stands").maybeSingle(),
-      ]);
+      const { data: sp } = await supabase.from("stand_parameters").select("*").order("sort_order");
       setRows(
         (sp ?? []).map((r) => ({
           id: r.id,
@@ -59,8 +54,6 @@ const AdminParametros = () => {
           sort_order: r.sort_order,
         })),
       );
-      setTitle(settings?.title ?? "");
-      setSubtitle(settings?.subtitle ?? "");
       setLoading(false);
     })();
   }, [navigate]);
@@ -88,11 +81,6 @@ const AdminParametros = () => {
           .eq("id", r.id);
         if (error) throw error;
       }
-      const { error: sErr } = await supabase
-        .from("simulator_settings")
-        .update({ title: title.trim(), subtitle: subtitle.trim() })
-        .eq("id", "stands");
-      if (sErr) throw sErr;
       toast({ title: "Parâmetros salvos", description: "O simulador já reflete os novos valores." });
     } catch (e) {
       toast({ title: "Erro ao salvar", description: (e as Error).message, variant: "destructive" });
@@ -147,31 +135,9 @@ const AdminParametros = () => {
             <SlidersHorizontal className="w-6 h-6" /> Parametrização de vendas
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Defina os preços dos stands e os textos exibidos no simulador.
+            Defina as categorias e os preços de stand exibidos no simulador.
           </p>
         </div>
-
-        <section className="bg-white rounded-2xl border border-border p-5 lg:p-6 shadow-sm space-y-4">
-          <h2 className="font-semibold text-primary">Bloco de seleção de stands</h2>
-          <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Título</label>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-              placeholder="Seleção de stands"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Subtítulo</label>
-            <input
-              value={subtitle}
-              onChange={(e) => setSubtitle(e.target.value)}
-              className="mt-1 w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-              placeholder="Tamanhos e disposição finais são alinhados pela equipe comercial."
-            />
-          </div>
-        </section>
 
         <section className="bg-white rounded-2xl border border-border p-5 lg:p-6 shadow-sm space-y-4">
           <h2 className="font-semibold text-primary">Categorias de stand</h2>
