@@ -600,20 +600,40 @@ const ExpositorSimulador = () => {
 
             {/* Mapa */}
             <section className="bg-muted border border-border rounded-2xl overflow-hidden shadow-sm">
-              <div className="flex items-center gap-2 p-5 border-b border-border">
-                <MapPin className="w-4 h-4 text-primary" />
-                <h2 className="text-foreground font-semibold">Mapa do evento</h2>
+              <div className="flex items-center justify-between gap-3 p-5 border-b border-border">
+                <button
+                  type="button"
+                  onClick={() => setMapOpen((v) => !v)}
+                  className="flex items-center gap-2 text-left"
+                  aria-expanded={mapOpen}
+                >
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <h2 className="text-foreground font-semibold">Mapa do evento</h2>
+                  <ChevronDown
+                    className={`w-4 h-4 text-foreground/60 transition-transform ${mapOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                <a
+                  href="/mapa-instal-show.pdf"
+                  download
+                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Baixar mapa em PDF
+                </a>
               </div>
-              <div className="p-4">
-                <img
-                  src="/mapa-instal.jpeg"
-                  alt="Mapa do evento com localização dos stands"
-                  loading="lazy"
-                  width={1536}
-                  height={1024}
-                  className="w-full h-auto rounded-xl border border-border"
-                />
-              </div>
+              {mapOpen && (
+                <div className="p-4">
+                  <img
+                    src="/mapa-instal.jpeg"
+                    alt="Mapa do evento com localização dos stands"
+                    loading="lazy"
+                    width={1536}
+                    height={1024}
+                    className="w-full h-auto rounded-xl border border-border"
+                  />
+                </div>
+              )}
             </section>
 
             {/* Stands */}
@@ -624,36 +644,36 @@ const ExpositorSimulador = () => {
               <p className="text-foreground/50 text-sm mb-5">
                 {standsSubtitle}
               </p>
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                 {stands.map((s) => (
                   <div
                     key={s.id}
-                    className={`relative bg-white border border-foreground/25 rounded-xl p-4 flex flex-col ring-2 ${styleOf(s.id).ring}`}
+                    className={`relative bg-white border border-foreground/25 rounded-xl p-3.5 flex flex-col ring-2 ${styleOf(s.id).ring}`}
                   >
                     <div
-                      className={`h-2.5 w-14 rounded-full bg-gradient-to-r ${styleOf(s.id).color} mb-3 shadow-sm ring-1 ring-black/5`}
+                      className={`h-2 w-12 rounded-full bg-gradient-to-r ${styleOf(s.id).color} mb-2.5 shadow-sm ring-1 ring-black/5`}
                     />
-                    <div className="text-foreground font-semibold text-lg">
+                    <div className="text-foreground font-semibold text-base leading-tight">
                       Stand {s.name}
                     </div>
-                    <div className="text-foreground/50 text-xs mb-3">{s.desc}</div>
-                    <div className="text-foreground font-semibold mb-4">
-                      {currency(s.price)}
+                    <div className="text-foreground/50 text-xs mt-1 mb-3">{s.desc}</div>
+                    <div className="text-foreground font-semibold text-sm mb-3">
+                      {s.price > 0 ? currency(s.price) : "Sob consulta"}
                     </div>
                     <div className="mt-auto flex items-center justify-between bg-white border border-border rounded-full p-1">
                       <button
                         onClick={() => dec(s.id)}
-                        className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-foreground flex items-center justify-center transition-colors"
+                        className="w-7 h-7 rounded-full bg-muted hover:bg-muted/80 text-foreground flex items-center justify-center transition-colors"
                         aria-label={`Diminuir ${s.name}`}
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="text-foreground font-semibold w-6 text-center">
+                      <span className="text-foreground font-semibold w-6 text-center text-sm">
                         {qtd[s.id] || 0}
                       </span>
                       <button
                         onClick={() => inc(s.id)}
-                        className="w-8 h-8 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center transition-colors"
+                        className="w-7 h-7 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center transition-colors"
                         aria-label={`Aumentar ${s.name}`}
                       >
                         <Plus className="w-4 h-4" />
@@ -662,6 +682,7 @@ const ExpositorSimulador = () => {
                   </div>
                 ))}
               </div>
+
 
               <div className="mt-6 bg-white border border-foreground/25 rounded-xl p-4">
                 <label
