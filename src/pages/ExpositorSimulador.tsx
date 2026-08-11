@@ -39,6 +39,8 @@ type Stand = {
 const STAND_STYLES: Record<string, { color: string; ring: string; dot: string }> = {
   bronze: { color: "from-amber-700 to-amber-500", ring: "ring-amber-600/40", dot: "bg-amber-600" },
   prata: { color: "from-slate-800 to-slate-500", ring: "ring-slate-600/50", dot: "bg-slate-600" },
+  "prata-plus": { color: "from-sky-700 to-sky-400", ring: "ring-sky-600/50", dot: "bg-sky-600" },
+  outro: { color: "from-primary to-primary/50", ring: "ring-primary/40", dot: "bg-primary" },
   ouro: { color: "from-yellow-500 to-yellow-300", ring: "ring-yellow-500/50", dot: "bg-yellow-500" },
 };
 const styleOf = (id: string) =>
@@ -58,10 +60,16 @@ const DEFAULT_STANDS: Stand[] = [
     desc: "Posição intermediária, alto fluxo de público.",
   },
   {
-    id: "ouro",
-    name: "Ouro",
-    price: 18500,
-    desc: "Área nobre, ao centro e próxima ao palco.",
+    id: "prata-plus",
+    name: "Prata Plus",
+    price: 15000,
+    desc: "Posição privilegiada, maior visibilidade e fluxo.",
+  },
+  {
+    id: "outro",
+    name: "Outro",
+    price: 0,
+    desc: "Formato personalizado — valor definido pela equipe comercial.",
   },
 ];
 
@@ -71,6 +79,7 @@ type EventoAdicional = {
   price: number;
   subtitle: string;
   details?: string;
+  pdf: string;
 };
 
 const EVENTOS_ADICIONAIS: readonly EventoAdicional[] = [
@@ -79,12 +88,14 @@ const EVENTOS_ADICIONAIS: readonly EventoAdicional[] = [
     name: "3º Encontro das Instaladoras - Outubro de 2026",
     price: 8000,
     subtitle: "Investimento padrão (Primeira vez no Instal Show)",
+    pdf: "/encontro-instaladoras.pdf",
   },
   {
     id: "instalshow-goiania",
     name: "Benefício exclusivo para expositores da 3ª edição do INSTAL SHOW",
     price: 3500,
     subtitle: "1ª Edição – INSTAL SHOW GOIÂNIA | Março de 2027",
+    pdf: "/instal-show-goiania.pdf",
     details:
       "A expansão do INSTAL SHOW chega ao Centro-Oeste com sua primeira edição em Goiânia. O evento levará o mesmo conceito de sucesso da feira nacional, reunindo grandes marcas, especialistas e profissionais em uma experiência focada em inovação, produtividade, capacitação técnica e networking para os setores de instalações elétricas, hidráulicas, combate a incêndio e HVAC.\n\nEsses três eventos reforçam o propósito do INSTAL SHOW de conectar toda a cadeia do setor de instalações, promovendo conhecimento, relacionamento e negócios ao longo de todo o ano.\n\n⭐ Benefício Exclusivo: A contratação de dois ou mais eventos proporciona descontos progressivos, aumentando a visibilidade da sua marca e reduzindo o investimento individual em cada participação.",
   },
@@ -217,7 +228,7 @@ const ExpositorSimulador = () => {
       return;
     }
     const sim: any = data.simulation_data || {};
-    const newQtd: Record<string, number> = { bronze: 0, prata: 0, ouro: 0 };
+    const newQtd: Record<string, number> = {};
     (sim.stands || []).forEach((s: any) => {
       if (s.id in newQtd) newQtd[s.id] = s.quantity || 0;
     });
@@ -266,7 +277,7 @@ const ExpositorSimulador = () => {
   const subtotal = subtotalStands + subtotalEventos;
   const descontoValor = primeira ? subtotal * (DESCONTO_PRIMEIRA_PCT / 100) : 0;
   const total = subtotal - descontoValor;
-  const totalStands = qtd.bronze + qtd.prata + qtd.ouro;
+  const totalStands = stands.reduce((sum, s) => sum + (qtd[s.id] || 0), 0);
 
   const inc = (id: string) => setQtd((q) => ({ ...q, [id]: (q[id] || 0) + 1 }));
   const dec = (id: string) =>
@@ -478,7 +489,7 @@ const ExpositorSimulador = () => {
       notes: "",
       sale_date: "",
     });
-    setQtd({ bronze: 0, prata: 0, ouro: 0 });
+    setQtd({});
     setEventos({});
   };
 
@@ -755,8 +766,19 @@ const ExpositorSimulador = () => {
                             <div className="text-foreground/60 text-sm mt-0.5">{e.subtitle}</div>
                           )}
                         </div>
-                        <div className="text-foreground font-semibold whitespace-nowrap">
-                          {currency(e.price)}
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="text-foreground font-semibold whitespace-nowrap">
+                            {currency(e.price)}
+                          </div>
+                          <a
+                            href={e.pdf}
+                            download
+                            onClick={(ev) => ev.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-white px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            Saiba mais (PDF)
+                          </a>
                         </div>
                       </label>
                       {e.details && expanded && (
@@ -1104,7 +1126,7 @@ const ExpositorSimulador = () => {
                   const reason = cancelReason.trim();
                   const code = loadedCode;
                   // Reset simulator state
-                  setQtd({ bronze: 0, prata: 0, ouro: 0 });
+                  setQtd({});
                   setEventos({});
                   setDesiredStands("");
                   setPrimeira(false);
