@@ -19,6 +19,7 @@ import {
   Search,
   XCircle,
   ChevronDown,
+  Download,
   SlidersHorizontal,
   Building2,
 } from "lucide-react";
@@ -38,6 +39,8 @@ type Stand = {
 const STAND_STYLES: Record<string, { color: string; ring: string; dot: string }> = {
   bronze: { color: "from-amber-700 to-amber-500", ring: "ring-amber-600/40", dot: "bg-amber-600" },
   prata: { color: "from-slate-800 to-slate-500", ring: "ring-slate-600/50", dot: "bg-slate-600" },
+  "prata-plus": { color: "from-sky-700 to-sky-400", ring: "ring-sky-600/50", dot: "bg-sky-600" },
+  outro: { color: "from-primary to-primary/50", ring: "ring-primary/40", dot: "bg-primary" },
   ouro: { color: "from-yellow-500 to-yellow-300", ring: "ring-yellow-500/50", dot: "bg-yellow-500" },
 };
 const styleOf = (id: string) =>
@@ -57,10 +60,16 @@ const DEFAULT_STANDS: Stand[] = [
     desc: "Posição intermediária, alto fluxo de público.",
   },
   {
-    id: "ouro",
-    name: "Ouro",
-    price: 18500,
-    desc: "Área nobre, ao centro e próxima ao palco.",
+    id: "prata-plus",
+    name: "Prata Plus",
+    price: 15000,
+    desc: "Posição privilegiada, maior visibilidade e fluxo.",
+  },
+  {
+    id: "outro",
+    name: "Outro",
+    price: 0,
+    desc: "Formato personalizado — valor definido pela equipe comercial.",
   },
 ];
 
@@ -70,6 +79,7 @@ type EventoAdicional = {
   price: number;
   subtitle: string;
   details?: string;
+  pdf: string;
 };
 
 const EVENTOS_ADICIONAIS: readonly EventoAdicional[] = [
@@ -78,12 +88,14 @@ const EVENTOS_ADICIONAIS: readonly EventoAdicional[] = [
     name: "3º Encontro das Instaladoras - Outubro de 2026",
     price: 8000,
     subtitle: "Investimento padrão (Primeira vez no Instal Show)",
+    pdf: "/encontro-instaladoras.pdf",
   },
   {
     id: "instalshow-goiania",
     name: "Benefício exclusivo para expositores da 3ª edição do INSTAL SHOW",
     price: 3500,
     subtitle: "1ª Edição – INSTAL SHOW GOIÂNIA | Março de 2027",
+    pdf: "/instal-show-goiania.pdf",
     details:
       "A expansão do INSTAL SHOW chega ao Centro-Oeste com sua primeira edição em Goiânia. O evento levará o mesmo conceito de sucesso da feira nacional, reunindo grandes marcas, especialistas e profissionais em uma experiência focada em inovação, produtividade, capacitação técnica e networking para os setores de instalações elétricas, hidráulicas, combate a incêndio e HVAC.\n\nEsses três eventos reforçam o propósito do INSTAL SHOW de conectar toda a cadeia do setor de instalações, promovendo conhecimento, relacionamento e negócios ao longo de todo o ano.\n\n⭐ Benefício Exclusivo: A contratação de dois ou mais eventos proporciona descontos progressivos, aumentando a visibilidade da sua marca e reduzindo o investimento individual em cada participação.",
   },
@@ -110,13 +122,10 @@ const ExpositorSimulador = () => {
     "Tamanhos e disposição finais são alinhados pela equipe comercial.",
   );
 
-  const [qtd, setQtd] = useState<Record<string, number>>({
-    bronze: 0,
-    prata: 0,
-    ouro: 0,
-  });
+  const [qtd, setQtd] = useState<Record<string, number>>({});
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
   const [expandedEventos, setExpandedEventos] = useState<Record<string, boolean>>({});
+  const [mapOpen, setMapOpen] = useState(false);
   const [desiredStands, setDesiredStands] = useState("");
   const [primeira, setPrimeira] = useState(false);
 
@@ -219,7 +228,7 @@ const ExpositorSimulador = () => {
       return;
     }
     const sim: any = data.simulation_data || {};
-    const newQtd: Record<string, number> = { bronze: 0, prata: 0, ouro: 0 };
+    const newQtd: Record<string, number> = {};
     (sim.stands || []).forEach((s: any) => {
       if (s.id in newQtd) newQtd[s.id] = s.quantity || 0;
     });
@@ -268,7 +277,7 @@ const ExpositorSimulador = () => {
   const subtotal = subtotalStands + subtotalEventos;
   const descontoValor = primeira ? subtotal * (DESCONTO_PRIMEIRA_PCT / 100) : 0;
   const total = subtotal - descontoValor;
-  const totalStands = qtd.bronze + qtd.prata + qtd.ouro;
+  const totalStands = stands.reduce((sum, s) => sum + (qtd[s.id] || 0), 0);
 
   const inc = (id: string) => setQtd((q) => ({ ...q, [id]: (q[id] || 0) + 1 }));
   const dec = (id: string) =>
@@ -480,7 +489,7 @@ const ExpositorSimulador = () => {
       notes: "",
       sale_date: "",
     });
-    setQtd({ bronze: 0, prata: 0, ouro: 0 });
+    setQtd({});
     setEventos({});
   };
 
@@ -600,20 +609,40 @@ const ExpositorSimulador = () => {
 
             {/* Mapa */}
             <section className="bg-muted border border-border rounded-2xl overflow-hidden shadow-sm">
-              <div className="flex items-center gap-2 p-5 border-b border-border">
-                <MapPin className="w-4 h-4 text-primary" />
-                <h2 className="text-foreground font-semibold">Mapa do evento</h2>
+              <div className="flex items-center justify-between gap-3 p-5 border-b border-border">
+                <button
+                  type="button"
+                  onClick={() => setMapOpen((v) => !v)}
+                  className="flex items-center gap-2 text-left"
+                  aria-expanded={mapOpen}
+                >
+                  <MapPin className="w-4 h-4 text-primary" />
+                  <h2 className="text-foreground font-semibold">Mapa do evento</h2>
+                  <ChevronDown
+                    className={`w-4 h-4 text-foreground/60 transition-transform ${mapOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                <a
+                  href="/mapa-instal-show.pdf"
+                  download
+                  className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-white px-3 py-2 text-xs sm:text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Baixar mapa em PDF
+                </a>
               </div>
-              <div className="p-4">
-                <img
-                  src="/mapa-instal.jpeg"
-                  alt="Mapa do evento com localização dos stands"
-                  loading="lazy"
-                  width={1536}
-                  height={1024}
-                  className="w-full h-auto rounded-xl border border-border"
-                />
-              </div>
+              {mapOpen && (
+                <div className="p-4">
+                  <img
+                    src="/mapa-instal.jpeg"
+                    alt="Mapa do evento com localização dos stands"
+                    loading="lazy"
+                    width={1536}
+                    height={1024}
+                    className="w-full h-auto rounded-xl border border-border"
+                  />
+                </div>
+              )}
             </section>
 
             {/* Stands */}
@@ -624,36 +653,36 @@ const ExpositorSimulador = () => {
               <p className="text-foreground/50 text-sm mb-5">
                 {standsSubtitle}
               </p>
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                 {stands.map((s) => (
                   <div
                     key={s.id}
-                    className={`relative bg-white border border-foreground/25 rounded-xl p-4 flex flex-col ring-2 ${styleOf(s.id).ring}`}
+                    className={`relative bg-white border border-foreground/25 rounded-xl p-3.5 flex flex-col ring-2 ${styleOf(s.id).ring}`}
                   >
                     <div
-                      className={`h-2.5 w-14 rounded-full bg-gradient-to-r ${styleOf(s.id).color} mb-3 shadow-sm ring-1 ring-black/5`}
+                      className={`h-2 w-12 rounded-full bg-gradient-to-r ${styleOf(s.id).color} mb-2.5 shadow-sm ring-1 ring-black/5`}
                     />
-                    <div className="text-foreground font-semibold text-lg">
+                    <div className="text-foreground font-semibold text-base leading-tight">
                       Stand {s.name}
                     </div>
-                    <div className="text-foreground/50 text-xs mb-3">{s.desc}</div>
-                    <div className="text-foreground font-semibold mb-4">
-                      {currency(s.price)}
+                    <div className="text-foreground/50 text-xs mt-1 mb-3">{s.desc}</div>
+                    <div className="text-foreground font-semibold text-sm mb-3">
+                      {s.price > 0 ? currency(s.price) : "Sob consulta"}
                     </div>
                     <div className="mt-auto flex items-center justify-between bg-white border border-border rounded-full p-1">
                       <button
                         onClick={() => dec(s.id)}
-                        className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-foreground flex items-center justify-center transition-colors"
+                        className="w-7 h-7 rounded-full bg-muted hover:bg-muted/80 text-foreground flex items-center justify-center transition-colors"
                         aria-label={`Diminuir ${s.name}`}
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="text-foreground font-semibold w-6 text-center">
+                      <span className="text-foreground font-semibold w-6 text-center text-sm">
                         {qtd[s.id] || 0}
                       </span>
                       <button
                         onClick={() => inc(s.id)}
-                        className="w-8 h-8 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center transition-colors"
+                        className="w-7 h-7 rounded-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center transition-colors"
                         aria-label={`Aumentar ${s.name}`}
                       >
                         <Plus className="w-4 h-4" />
@@ -662,6 +691,7 @@ const ExpositorSimulador = () => {
                   </div>
                 ))}
               </div>
+
 
               <div className="mt-6 bg-white border border-foreground/25 rounded-xl p-4">
                 <label
@@ -736,8 +766,19 @@ const ExpositorSimulador = () => {
                             <div className="text-foreground/60 text-sm mt-0.5">{e.subtitle}</div>
                           )}
                         </div>
-                        <div className="text-foreground font-semibold whitespace-nowrap">
-                          {currency(e.price)}
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="text-foreground font-semibold whitespace-nowrap">
+                            {currency(e.price)}
+                          </div>
+                          <a
+                            href={e.pdf}
+                            download
+                            onClick={(ev) => ev.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-white px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            Saiba mais (PDF)
+                          </a>
                         </div>
                       </label>
                       {e.details && expanded && (
@@ -1085,7 +1126,7 @@ const ExpositorSimulador = () => {
                   const reason = cancelReason.trim();
                   const code = loadedCode;
                   // Reset simulator state
-                  setQtd({ bronze: 0, prata: 0, ouro: 0 });
+                  setQtd({});
                   setEventos({});
                   setDesiredStands("");
                   setPrimeira(false);
