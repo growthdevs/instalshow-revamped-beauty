@@ -111,13 +111,10 @@ const ExpositorSimulador = () => {
     "Tamanhos e disposição finais são alinhados pela equipe comercial.",
   );
 
-  const [qtd, setQtd] = useState<Record<string, number>>({
-    bronze: 0,
-    prata: 0,
-    ouro: 0,
-  });
+  const [qtd, setQtd] = useState<Record<string, number>>({});
   const [eventos, setEventos] = useState<Record<string, boolean>>({});
   const [expandedEventos, setExpandedEventos] = useState<Record<string, boolean>>({});
+  const [mapOpen, setMapOpen] = useState(false);
   const [desiredStands, setDesiredStands] = useState("");
   const [primeira, setPrimeira] = useState(false);
 
