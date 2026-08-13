@@ -49,27 +49,27 @@ const styleOf = (id: string) =>
 const DEFAULT_STANDS: Stand[] = [
   {
     id: "bronze",
-    name: "Bronze",
-    price: 8500,
+    name: "Bronze 9m²",
+    price: 11000,
     desc: "Localização periférica, ótimo custo-benefício.",
   },
   {
-    id: "prata",
-    name: "Prata",
-    price: 12500,
-    desc: "Posição intermediária, alto fluxo de público.",
-  },
-  {
     id: "prata-plus",
-    name: "Prata Plus",
-    price: 15000,
+    name: "Prata Plus 9m²",
+    price: 13000,
     desc: "Posição privilegiada, maior visibilidade e fluxo.",
   },
   {
-    id: "outro",
-    name: "Outro",
-    price: 0,
-    desc: "Formato personalizado — valor definido pela equipe comercial.",
+    id: "prata",
+    name: "Prata 9m²",
+    price: 15000,
+    desc: "Posição intermediária, alto fluxo de público.",
+  },
+  {
+    id: "ouro",
+    name: "Ouro 23m²",
+    price: 18000,
+    desc: "Maior espaço e visibilidade premium para grandes marcas.",
   },
 ];
 
