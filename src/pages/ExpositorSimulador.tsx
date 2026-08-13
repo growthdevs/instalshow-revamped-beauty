@@ -773,15 +773,26 @@ const ExpositorSimulador = () => {
                           <div className="text-foreground font-semibold whitespace-nowrap">
                             {currency(e.price)}
                           </div>
-                          <a
-                            href={e.pdf}
-                            download
-                            onClick={(ev) => ev.stopPropagation()}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-white px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                            Saiba mais (PDF)
-                          </a>
+                          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+                            <a
+                              href={e.pdfMkt}
+                              download
+                              onClick={(ev) => ev.stopPropagation()}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-white px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              Pacote MKT
+                            </a>
+                            <a
+                              href={e.pdfGoiania}
+                              download
+                              onClick={(ev) => ev.stopPropagation()}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-white px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent hover:text-white transition-colors whitespace-nowrap"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              Evento Goiania 2027
+                            </a>
+                          </div>
                         </div>
                       </label>
                       {e.details && expanded && (
