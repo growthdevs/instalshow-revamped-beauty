@@ -79,7 +79,8 @@ type EventoAdicional = {
   price: number;
   subtitle: string;
   details?: string;
-  pdf: string;
+  pdfMkt: string;
+  pdfGoiania: string;
 };
 
 const EVENTOS_ADICIONAIS: readonly EventoAdicional[] = [
@@ -88,14 +89,16 @@ const EVENTOS_ADICIONAIS: readonly EventoAdicional[] = [
     name: "3º Encontro das Instaladoras - Outubro de 2026",
     price: 8000,
     subtitle: "Investimento padrão (Primeira vez no Instal Show)",
-    pdf: "/encontro-instaladoras.pdf",
+    pdfMkt: "/encontro-instaladoras.pdf",
+    pdfGoiania: "/instal-show-goiania.pdf",
   },
   {
     id: "instalshow-goiania",
     name: "Benefício exclusivo para expositores da 3ª edição do INSTAL SHOW",
     price: 3500,
     subtitle: "1ª Edição – INSTAL SHOW GOIÂNIA | Março de 2027",
-    pdf: "/instal-show-goiania.pdf",
+    pdfMkt: "/encontro-instaladoras.pdf",
+    pdfGoiania: "/instal-show-goiania.pdf",
     details:
       "A expansão do INSTAL SHOW chega ao Centro-Oeste com sua primeira edição em Goiânia. O evento levará o mesmo conceito de sucesso da feira nacional, reunindo grandes marcas, especialistas e profissionais em uma experiência focada em inovação, produtividade, capacitação técnica e networking para os setores de instalações elétricas, hidráulicas, combate a incêndio e HVAC.\n\nEsses três eventos reforçam o propósito do INSTAL SHOW de conectar toda a cadeia do setor de instalações, promovendo conhecimento, relacionamento e negócios ao longo de todo o ano.\n\n⭐ Benefício Exclusivo: A contratação de dois ou mais eventos proporciona descontos progressivos, aumentando a visibilidade da sua marca e reduzindo o investimento individual em cada participação.",
   },
@@ -770,15 +773,26 @@ const ExpositorSimulador = () => {
                           <div className="text-foreground font-semibold whitespace-nowrap">
                             {currency(e.price)}
                           </div>
-                          <a
-                            href={e.pdf}
-                            download
-                            onClick={(ev) => ev.stopPropagation()}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-white px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                            Saiba mais (PDF)
-                          </a>
+                          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+                            <a
+                              href={e.pdfMkt}
+                              download
+                              onClick={(ev) => ev.stopPropagation()}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-white px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-white transition-colors whitespace-nowrap"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              Pacote MKT
+                            </a>
+                            <a
+                              href={e.pdfGoiania}
+                              download
+                              onClick={(ev) => ev.stopPropagation()}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-white px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent hover:text-white transition-colors whitespace-nowrap"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              Evento Goiania 2027
+                            </a>
+                          </div>
                         </div>
                       </label>
                       {e.details && expanded && (
