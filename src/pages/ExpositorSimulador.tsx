@@ -69,7 +69,7 @@ const DEFAULT_STANDS: Stand[] = [
     id: "ouro",
     name: "Ouro 23m²",
     price: 18000,
-    desc: "Maior espaço e visibilidade premium para grandes marcas.",
+    desc: "Maior espaço e visibilidade para grandes marcas.",
   },
 ];
 
